@@ -61,7 +61,22 @@ local backgrounds = {
       heightScale = 0.2
     }
   },
-  game = {},
+  game = {
+    desk = {
+      imgPath = "assets/graphics/desk-view.png",
+      x = 0,
+      y = 0,
+      widthScale = 1,
+      heightScale = 1
+    },
+    invoice = {
+      imgPath = "assets/graphics/invoiceView.png",
+      x = 0,
+      y = 541,
+      widthScale = 1,
+      heightScale = 1
+    }
+  },
   levelComplete = {}
 }
 
