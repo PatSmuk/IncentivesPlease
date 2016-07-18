@@ -35,7 +35,7 @@ end
 function messages.MOUSE_MOVE(x, y, dx, dy)
   return {
     type = "MOUSE_MOVE",
-    loggable = true,
+    loggable = false,
     x = x,
     y = y,
     dx = dx,
