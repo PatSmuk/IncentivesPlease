@@ -1,4 +1,4 @@
-function registerScreen()
+function registerScreen(game)
   print("Registering screen system")
 end
 

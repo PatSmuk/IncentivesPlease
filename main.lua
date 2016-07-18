@@ -16,10 +16,10 @@ local UPDATE = messages.UPDATE
 local game = dispatcher.createDispatcher()
 
 function love.load()
-  registerClaimChecking()
-  registerClock()
-  registerScreen()
-  registerTable()
+  registerClaimChecking(game)
+  registerClock(game)
+  registerScreen(game)
+  registerTable(game)
 end
 
 function love.mousepressed(x, y, button)

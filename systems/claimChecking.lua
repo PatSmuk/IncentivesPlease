@@ -1,4 +1,4 @@
-function registerClaimChecking()
+function registerClaimChecking(game)
   print("Registering claim checking system")
 end
 
