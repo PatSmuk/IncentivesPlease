@@ -24,11 +24,23 @@ local buttons = {
     }
   },
   game = {},
-  level_complete = {}
+  levelComplete = {
+    nextLevel = {
+      x = 580,
+      y = 560,
+      width = 120,
+      height = 40,
+      onClick = function (game)
+        game.screen.currentScreen "game"
+        game.screen.currentDay = game.screen.currentDay + 1
+        game:dispatch(messages.DAY_START(game.screen.currentDay))
+      end
+    }
+  }
 }
 
 function endDay(game, message)
-  game.screen.currentScreen = "level_complete"
+  game.screen.currentScreen = "levelComplete"
 end
 
 function renderBG(game, message)
@@ -36,7 +48,7 @@ function renderBG(game, message)
 
   elseif game.screen.currentScreen == "game" then
 
-  elseif game.screen.currentScreen == "level_complete" then
+  elseif game.screen.currentScreen == "levelComplete" then
 
   end
 end
