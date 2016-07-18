@@ -67,7 +67,7 @@ end
 
 function drawTableDebug(t, x, y)
   for k, v in pairs(t) do
-    if k ~= "on" and k ~= "dispatch" and k ~= "lastMessages" and k ~= "handlers" then
+    if k ~= "on" and k ~= "dispatch" and k ~= "lastMessages" then
       if type(v) == "table" then
         love.graphics.print(k..": {", x, y)
         x = x + 20
