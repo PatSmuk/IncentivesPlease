@@ -1,3 +1,5 @@
+local messages = require("../messages")
+
 local buttons = {
   menu = {
     start = {
@@ -8,6 +10,7 @@ local buttons = {
       onClick = function (game)
         game.screen.currentScreen = "game"
         game.screen.currentDay = 1
+        game:dispatch(messages.DAY_START(game.screen.currentDay))
       end
     },
     quit = {
