@@ -6,9 +6,8 @@ local buttons = {
   menu = {
     start = {
       imgPath = "assets/graphics/startButton.png",
-      img = nil,
-      x = 536,
-      y = 400,
+      x = 854,
+      y = 750,
       widthScale = 0.1,
       heightScale = 0.1,
       onClick = function (game)
@@ -19,9 +18,8 @@ local buttons = {
     },
     quit = {
       imgPath = "assets/graphics/exitButton.png",
-      img = nil,
-      x = 536,
-      y = 460,
+      x = 854,
+      y = 825,
       widthScale = 0.1,
       heightScale = 0.1,
       onClick = function (game)
@@ -33,8 +31,7 @@ local buttons = {
   levelComplete = {
     nextLevel = {
       imgPath = "assets/graphics/startButton.png",
-      img = nil,
-      x = 580,
+      x = 854,
       y = 560,
       widthScale = 0.1,
       heightScale = 0.1,
@@ -48,7 +45,22 @@ local buttons = {
 }
 
 local backgrounds = {
-  menu = {},
+  menu = {
+    bg = {
+      imgPath = "assets/graphics/background.png",
+      x = 0,
+      y = 0,
+      widthScale = 1,
+      heightScale = 1
+    },
+    logo = {
+      imgPath = "assets/graphics/logo.png",
+      x = 758,
+      y = 200,
+      widthScale = 0.2,
+      heightScale = 0.2
+    }
+  },
   game = {},
   levelComplete = {}
 }
@@ -59,7 +71,14 @@ end
 
 function screen.renderBG(game, message)
   for k, background in pairs(backgrounds[game.screen.currentScreen]) do
-    love.graphics.draw(background.img, background.x, background.y)
+    love.graphics.draw(
+      background.img,
+      background.x,
+      background.y,
+      0,
+      background.widthScale,
+      background.heightScale
+    )
   end
 end
 
@@ -107,7 +126,6 @@ function screen.register(game)
   game.screen = {
     currentScreen = "menu",
     currentDay = 0,
-    buttonPressed = nil
   }
 
   for k, buttonGroup in pairs(buttons) do
@@ -115,6 +133,14 @@ function screen.register(game)
       button.img = love.graphics.newImage(button.imgPath)
       button.width = button.img:getWidth() * button.widthScale
       button.height = button.img:getHeight() * button.heightScale
+    end
+  end
+
+  for k, backgroundGroup in pairs(backgrounds) do
+    for i, background in pairs(backgroundGroup) do
+      background.img = love.graphics.newImage(background.imgPath)
+      background.width = background.img:getWidth() * background.widthScale
+      background.height = background.img:getHeight() * background.heightScale
     end
   end
 
