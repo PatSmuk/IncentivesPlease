@@ -1,9 +1,10 @@
 local dispatcher = require("dispatcher")
 local messages = require("messages")
-local registerClaimChecking = require("systems/claimChecking")
-local registerClock = require("systems/clock")
-local registerScreen = require("systems/screen")
-local registerTable = require("systems/table")
+
+local claimChecking = require("systems/claimChecking")
+local clock = require("systems/clock")
+local screen = require("systems/screen")
+local desk = require("systems/desk")
 
 local MOUSE_MOVE = messages.MOUSE_MOVE
 local MOUSE_PRESS = messages.MOUSE_PRESS
@@ -17,10 +18,10 @@ local game = dispatcher.createDispatcher()
 local debugActive = false
 
 function love.load()
-  registerClaimChecking(game)
-  registerClock(game)
-  registerScreen(game)
-  registerTable(game)
+  claimChecking.register(game)
+  clock.register(game)
+  screen.register(game)
+  desk.register(game)
 end
 
 function love.mousepressed(x, y, button)
