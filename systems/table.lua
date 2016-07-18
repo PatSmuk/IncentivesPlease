@@ -1,4 +1,4 @@
-function registerTable()
+function registerTable(game)
   print("Registering table system")
 end
 

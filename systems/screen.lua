@@ -1,5 +1,103 @@
-function registerScreen()
+local buttons = {
+  menu = {
+    start = {
+      x = 500,
+      y = 320,
+      width = 120,
+      height = 40,
+      onClick = function (game)
+        game.screen.currentScreen = "game"
+        game.screen.currentDay = 1
+      end
+    },
+    quit = {
+      x = 660,
+      y = 320,
+      width = 120,
+      height = 40,
+      onClick = function (game)
+        love.window.close()
+      end
+    }
+  }
+}
+
+function endDay(game, message)
+  game.screen.currentScreen = "level_complete"
+end
+
+function renderBG(game, message)
+  if game.screen.currentScreen == "menu" then
+
+  elseif game.screen.currentScreen == "game" then
+
+  elseif game.screen.currentScreen == "level_complete" then
+
+  end
+end
+
+function renderUI(game, message)
+  if game.screen.currentScreen == "menu" then
+    love.graphics.rectangle(
+      "fill",
+      buttons.menu.start.x,
+      buttons.menu.start.y,
+      buttons.menu.start.width,
+      buttons.menu.start.height
+    )
+    love.graphics.rectangle(
+      "fill",
+      buttons.menu.quit.x,
+      buttons.menu.quit.y,
+      buttons.menu.quit.width,
+      buttons.menu.quit.height
+    )
+  elseif game.screen.currentScreen == "game" then
+
+  elseif game.screen.currentScreen == "level_complete" then
+
+  end
+end
+
+function mousePress(game, message)
+  for k, button in pairs(buttons[game.screen.currentScreen]) do
+    if message.x >= button.x and
+       message.x <= button.x + button.width and
+       message.y >= button.y and
+       message.y <= button.y + button.height then
+      game.screen.buttonPressed = k
+    end
+  end
+end
+
+function mouseRelease(game, message)
+  for k, button in pairs(buttons[game.screen.currentScreen]) do
+    if message.x >= button.x and
+       message.x <= button.x + button.width and
+       message.y >= button.y and
+       message.y <= button.y + button.height and
+       game.screen.buttonPressed == k then
+      button.onClick(game)
+    end
+  end
+
+  game.screen.buttonPressed = nil
+end
+
+function registerScreen(game)
   print("Registering screen system")
+
+  game.screen = {
+    currentScreen = "menu",
+    currentDay = 0,
+    buttonPressed = nil
+  }
+
+  game:on('DAY_END', endDay)
+  game:on('RENDER_BG', renderBG)
+  game:on('RENDER_UI', renderUI)
+  game:on('MOUSE_PRESS', mousePress)
+  game:on('MOUSE_RELEASE', mouseRelease)
 end
 
 return registerScreen

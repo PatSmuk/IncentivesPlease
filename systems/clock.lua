@@ -1,4 +1,4 @@
-function registerClock()
+function registerClock(game)
   print("Registering clock system")
 end
 

@@ -10,15 +10,21 @@ function registerClaimChecking(game)
   game.claimChecking.claimsDenied = 0
   game.claimChecking.dayBalance = 0
   game.claimChecking.totalBalance = 0
-  game.claimChecking.strings = 0
+  game.claimChecking.strikes = 0
+
+  game:on("DAY_START", startDay)
+  game:on("CLAIM_APPROVED", incrementClaimsApproved)
+  game:on("CLAIM_DENIED", incrementClaimsDenied)
 end
 
 function incrementClaimsApproved(approvedClaim)
   if approvedClaim.valid then
+    print("Successfully identified a claim")
     game.claimChecking.claimsApproved = game.claimChecking.claimsApproved + 1
     game.claimChecking.dayBalance = game.claimChecking.dayBalance + SUCCESSFUL_ID_AMMOUNT
     game.claimChecking.totalBalance = game.claimChecking.totalBalance + SUCCESSFUL_ID_AMMOUNT
   else
+    print("You claim identification is bad, and you should feel bad")
     game.claimChecking.dayBalance = game.claimChecking.dayBalance - FAILED_ID_AMOUNT
     game.claimChecking.totalBalance = game.claimChecking.totalBalance + FAILED_ID_AMOUNT
   end
@@ -26,15 +32,27 @@ end
 
 function incrementClaimsDenied(deniedClaim)
   if not deniedClaim.valid then
+    print("Successfully identified a claim")
     game.claimChecking.claimsDenied = game.claimChecking.claimsDenied + 1
     game.claimChecking.dayBalance = game.claimChecking.dayBalance + SUCCESSFUL_ID_AMMOUNT
     game.claimChecking.totalBalance = game.claimChecking.totalBalance + SUCCESSFUL_ID_AMMOUNT
   else
-    game.claimChecking.dayBalance = game.claimChecking.dayBalance + FAILED_ID_AMMOUNT
-    game.claimChecking.totalBalance = game.claimChecking.totalBalance + FAILED_ID_AMMOUNT
+    print("You claim identification is bad, and you should feel bad")
+    if game.claimChecking.strikes < MAX_STRIKES then
+      game.claimChecking.strikes = game.claimChecking.strikes + 1
+    else
+      game.claimChecking.dayBalance = game.claimChecking.dayBalance + FAILED_ID_AMMOUNT
+      game.claimChecking.totalBalance = game.claimChecking.totalBalance + FAILED_ID_AMMOUNT
+    end
   end
 end
 
-function
+function startDay(dayNumber)
+  print("Day: " .. dayNumber)
+  game.claimChecking.strikes = 0
+  game.claimChecking.claimsApproved = 0
+  game.claimChecking.claimsDenied = 0
+  game.claimChecking.dayBalance = 0
+end
 
 return registerClaimChecking
