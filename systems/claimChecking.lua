@@ -22,11 +22,18 @@ function CC.register(game)
   game.claimChecking.totalBalance = 0
   game.claimChecking.strikes = 0
   game.claimChecking.dayStarted = false
+  game.claimChecking.currentDay = 0
 
   game:on("DAY_START", CC.startDay)
   game:on("CLAIM_APPROVED", CC.incrementClaimsApproved)
   game:on("CLAIM_DENIED", CC.incrementClaimsDenied)
   game:on("RENDER_UI", CC.renderClaimCounters)
+  game:on("MOUSE_PRESS", CC.updateAll)
+end
+
+function CC.updateAll(game, message)
+  game.claimChecking.claimsApproved = game.claimChecking.claimsApproved + 1
+  game.claimChecking.claimsDenied = game.claimChecking.claimsDenied + 1
 end
 
 function CC.incrementClaimsApproved(game, message)
@@ -64,6 +71,7 @@ end
 function CC.startDay(game, message)
   print("Starting day: " .. message.day)
   game.claimChecking.dayStarted = true
+  game.claimChecking.currentDay = message.day
   game.claimChecking.strikes = 0
   game.claimChecking.claimsApproved = 0
   game.claimChecking.claimsDenied = 0
