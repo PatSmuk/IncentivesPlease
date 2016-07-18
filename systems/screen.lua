@@ -70,7 +70,7 @@ local backgrounds = {
       heightScale = 1
     },
     invoice = {
-      imgPath = "assets/graphics/invoiceView.png",
+      imgPath = "assets/graphics/InvoiceView.png",
       x = 0,
       y = 541,
       widthScale = 1,
