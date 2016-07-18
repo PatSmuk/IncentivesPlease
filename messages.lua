@@ -32,12 +32,14 @@ function messages.DAY_END()
   }
 end
 
-function messages.MOUSE_MOVE(x, y)
+function messages.MOUSE_MOVE(x, y, dx, dy)
   return {
     type = "MOUSE_MOVE",
     loggable = true,
     x = x,
-    y = y
+    y = y,
+    dx = dx,
+    dy = dy
   }
 end
 
@@ -50,10 +52,12 @@ function messages.MOUSE_PRESS(x, y)
   }
 end
 
-function messages.MOUSE_RELEASE()
+function messages.MOUSE_RELEASE(x, y)
   return {
     type = "MOUSE_RELEASE",
-    loggable = true
+    loggable = true,
+    x = x,
+    y = y
   }
 end
 
