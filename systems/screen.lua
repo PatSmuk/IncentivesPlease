@@ -19,7 +19,9 @@ local buttons = {
         love.window.close()
       end
     }
-  }
+  },
+  game = {},
+  level_complete = {}
 }
 
 function endDay(game, message)
@@ -37,25 +39,14 @@ function renderBG(game, message)
 end
 
 function renderUI(game, message)
-  if game.screen.currentScreen == "menu" then
+  for k, button in pairs(buttons[game.screen.currentScreen]) do
     love.graphics.rectangle(
       "fill",
-      buttons.menu.start.x,
-      buttons.menu.start.y,
-      buttons.menu.start.width,
-      buttons.menu.start.height
+      button.x,
+      button.y,
+      button.width,
+      button.height
     )
-    love.graphics.rectangle(
-      "fill",
-      buttons.menu.quit.x,
-      buttons.menu.quit.y,
-      buttons.menu.quit.width,
-      buttons.menu.quit.height
-    )
-  elseif game.screen.currentScreen == "game" then
-
-  elseif game.screen.currentScreen == "level_complete" then
-
   end
 end
 
