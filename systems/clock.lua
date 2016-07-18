@@ -5,13 +5,12 @@ local START_MIN = 0
 local END_HOUR = 5
 local END_MIN = 0
 
-local clockRunning, currentHour, currentMin
-
 function registerClock(game)
   print("Registering clock system")
-  currentHour = START_HOUR
-  currentMin = START_MIN
-  clockRunning = true
+  game.clock = {}
+  game.clock.currentHour = START_HOUR
+  game.clock.currentMin = START_MIN
+  game.clock.clockRunning = true
   
   game:on('DAY_START', resetClock)
   game:on('UPDATE', updateClock)
@@ -19,34 +18,34 @@ function registerClock(game)
 end
 
 function resetClock(game, message)
-	currentHour = START_HOUR
-	currentMin = START_MIN
+	game.clock.currentHour = START_HOUR
+	game.clock.currentMin = START_MIN
 end
 
 function updateClock(game, message)
-	if not clockRunning then
+	if not game.clock.clockRunning then
 		return
 	end
 
-	currentMin = currentMin + (message.dt * 3)
+	game.clock.currentMin = game.clock.currentMin + (message.dt * 3)
 
-	if currentMin > 60 then
-		currentHour = currentHour + 1
-		currentMin = 0
+	if game.clock.currentMin > 60 then
+		game.clock.currentHour = game.clock.currentHour + 1
+		game.clock.currentMin = 0
 	end
 
-	if currentHour > 13 then
-		currentHour = 1
+	if game.clock.currentHour > 13 then
+		game.clock.currentHour = 1
 	end
 
-	if currentHour == END_HOUR then
+	if game.clock.currentHour == END_HOUR then
 		game:dispatch(DAY_END())
 		clockRunning = false
 	end
 end
 
 function renderClock(game, message)
-	love.graphics.print(string.format("%.0f", currentHour) .. ":" .. string.format("%02.0f", currentMin), 10, 10)
+	love.graphics.print(string.format("%.0f", game.clock.currentHour) .. ":" .. string.format("%02.0f", game.clock.currentMin), 10, 10)
 end
 
 return registerClock
