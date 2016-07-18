@@ -7,16 +7,21 @@ local START_MIN = 0
 local END_HOUR = 5
 local END_MIN = 59
 
+local font = love.graphics.newFont("assets/font/DS-DIGI.ttf", 40)
+
 function clock.register(game)
   print("Registering clock system")
   game.clock = {}
   game.clock.currentHour = START_HOUR
   game.clock.currentMin = START_MIN
   game.clock.clockRunning = true
+  game.clock.dayStarted = false
   game.clock.amOrPm = 'AM';
 
+  game:on("DAY_START", clock.startDay)
   game:on('DAY_START', clock.resetClock)
   game:on('UPDATE', clock.updateClock)
+  -- game:on('DAY_START', clock.renderClock)
   game:on('RENDER_UI', clock.renderClock)
 end
 
@@ -54,7 +59,18 @@ function clock.updateClock(game, message)
 end
 
 function clock.renderClock(game, message)
-	love.graphics.print(string.format("%.0f", game.clock.currentHour) .. ":" .. string.format("%02.0f", game.clock.currentMin) .. " " .. game.clock.amOrPm, 10, 10)
+		-- 
+  -- 		
+	if game.clock.dayStarted then
+		love.graphics.push("all")
+  		love.graphics.setColor(255,0,0,255)
+  		love.graphics.setFont(font)
+		love.graphics.print(string.format("%.0f", game.clock.currentHour) .. ":" .. string.format("%02.0f", game.clock.currentMin) .. " " .. game.clock.amOrPm, 410, 120)
+		love.graphics.pop()
+	end
 end
 
+function clock.startDay(game, message)
+	game.clock.dayStarted = true
+end
 return clock
