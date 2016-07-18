@@ -1,15 +1,19 @@
 local dispatcher = {}
 
+local MAX_MESSAGES_IN_LOG = 75
+
 function dispatcher.createDispatcher()
-  local dispatcher = {}
-  local handlers = {}
+  local dispatcher = {
+    handlers = {},
+    lastMessages = {}
+  }
 
   function dispatcher:on(messageType, handler)
-    if handlers[messageType] == nil then
-      handlers[messageType] = {}
+    if self.handlers[messageType] == nil then
+      self.handlers[messageType] = {}
     end
 
-    table.insert(handlers[messageType], handler)
+    table.insert(self.handlers[messageType], handler)
   end
 
   function dispatcher:dispatch(message)
@@ -18,17 +22,21 @@ function dispatcher.createDispatcher()
     if message.loggable then
       local s = message.type.." { "
       for k, v in pairs(message) do
-        if k ~= "type" then
+        if k ~= "type" and k ~= "loggable" then
           s = s..k..": "..tostring(v)..", "
         end
       end
-      print(s:sub(1, #s - 2).." }")
+
+      table.insert(self.lastMessages, s:sub(1, #s - 2).." }")
+      if #self.lastMessages > MAX_MESSAGES_IN_LOG then
+        table.remove(self.lastMessages, 1)
+      end
     end
 
-    if not handlers[message.type] then
+    if not self.handlers[message.type] then
       return
     end
-    for i, handler in ipairs(handlers[message.type]) do
+    for i, handler in ipairs(self.handlers[message.type]) do
       handler(dispatcher, message)
     end
   end
