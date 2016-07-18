@@ -60,9 +60,17 @@ function love.draw()
   game:dispatch(RENDER_UI())
 
   if debugActive then
+    love.graphics.push("all")
+
+    love.graphics.setColor(0, 0, 0, 100)
+    love.graphics.rectangle("fill", 0, 0, 260, 1080)
+    love.graphics.rectangle("fill", 1540, 0, 380, 1080)
+
     love.graphics.setColor(255, 255, 255)
     drawTableDebug(game, 10, 10)
     drawMessageLog(game.lastMessages, 1600, 10)
+
+    love.graphics.pop()
   end
 end
 
