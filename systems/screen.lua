@@ -23,7 +23,7 @@ local buttons = {
       widthScale = 0.1,
       heightScale = 0.1,
       onClick = function (game)
-        love.window.close()
+        love.event.quit()
       end
     }
   },
