@@ -1,3 +1,5 @@
+local screen = {}
+
 local messages = require("../messages")
 
 local buttons = {
@@ -39,11 +41,11 @@ local buttons = {
   }
 }
 
-function endDay(game, message)
+function screen.endDay(game, message)
   game.screen.currentScreen = "levelComplete"
 end
 
-function renderBG(game, message)
+function screen.renderBG(game, message)
   if game.screen.currentScreen == "menu" then
 
   elseif game.screen.currentScreen == "game" then
@@ -53,7 +55,7 @@ function renderBG(game, message)
   end
 end
 
-function renderUI(game, message)
+function screen.renderUI(game, message)
   for k, button in pairs(buttons[game.screen.currentScreen]) do
     love.graphics.rectangle(
       "fill",
@@ -65,7 +67,7 @@ function renderUI(game, message)
   end
 end
 
-function mousePress(game, message)
+function screen.mousePress(game, message)
   for k, button in pairs(buttons[game.screen.currentScreen]) do
     if message.x >= button.x and
        message.x <= button.x + button.width and
@@ -76,7 +78,7 @@ function mousePress(game, message)
   end
 end
 
-function mouseRelease(game, message)
+function screen.mouseRelease(game, message)
   for k, button in pairs(buttons[game.screen.currentScreen]) do
     if message.x >= button.x and
        message.x <= button.x + button.width and
@@ -90,7 +92,7 @@ function mouseRelease(game, message)
   game.screen.buttonPressed = nil
 end
 
-function registerScreen(game)
+function screen.register(game)
   print("Registering screen system")
 
   game.screen = {
@@ -99,11 +101,11 @@ function registerScreen(game)
     buttonPressed = nil
   }
 
-  game:on('DAY_END', endDay)
-  game:on('RENDER_BG', renderBG)
-  game:on('RENDER_UI', renderUI)
-  game:on('MOUSE_PRESS', mousePress)
-  game:on('MOUSE_RELEASE', mouseRelease)
+  game:on('DAY_END', screen.endDay)
+  game:on('RENDER_BG', screen.renderBG)
+  game:on('RENDER_UI', screen.renderUI)
+  game:on('MOUSE_PRESS', screen.mousePress)
+  game:on('MOUSE_RELEASE', screen.mouseRelease)
 end
 
-return registerScreen
+return screen
