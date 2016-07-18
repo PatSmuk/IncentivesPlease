@@ -11,13 +11,15 @@ function registerClaimChecking(game)
   game.claimChecking.dayBalance = 0
   game.claimChecking.totalBalance = 0
   game.claimChecking.strikes = 0
+  game.claimChecking.dayStarted = false;
 
   game:on("DAY_START", startDay)
   game:on("CLAIM_APPROVED", incrementClaimsApproved)
   game:on("CLAIM_DENIED", incrementClaimsDenied)
 end
 
-function incrementClaimsApproved(approvedClaim)
+function incrementClaimsApproved(game, message)
+  local approvedClaim = message.claim
   if approvedClaim.valid then
     print("Successfully identified a claim")
     game.claimChecking.claimsApproved = game.claimChecking.claimsApproved + 1
@@ -30,7 +32,8 @@ function incrementClaimsApproved(approvedClaim)
   end
 end
 
-function incrementClaimsDenied(deniedClaim)
+function incrementClaimsDenied(game, message)
+  local deniedClaim = message.claim
   if not deniedClaim.valid then
     print("Successfully identified a claim")
     game.claimChecking.claimsDenied = game.claimChecking.claimsDenied + 1
@@ -47,12 +50,19 @@ function incrementClaimsDenied(deniedClaim)
   end
 end
 
-function startDay(dayNumber)
-  print("Day: " .. dayNumber)
+function startDay(game, message)
+  print("Starting day: " .. message.day)
+  game.claimChecking.dayStarted = true
   game.claimChecking.strikes = 0
   game.claimChecking.claimsApproved = 0
   game.claimChecking.claimsDenied = 0
   game.claimChecking.dayBalance = 0
+end
+
+function renderUI(game, message)
+  if game.claimChecking.dayStarted then
+    love.graphics.rectangle(fill, 20, 50, 60, 120)
+  end
 end
 
 return registerClaimChecking
