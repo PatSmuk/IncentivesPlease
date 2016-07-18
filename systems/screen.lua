@@ -3,10 +3,12 @@ local messages = require("../messages")
 local buttons = {
   menu = {
     start = {
-      x = 500,
-      y = 320,
-      width = 120,
-      height = 40,
+      imgPath = "assets/graphics/startButton.png",
+      img = nil,
+      x = 536,
+      y = 400,
+      widthScale = 0.1,
+      heightScale = 0.1,
       onClick = function (game)
         game.screen.currentScreen = "game"
         game.screen.currentDay = 1
@@ -14,10 +16,12 @@ local buttons = {
       end
     },
     quit = {
-      x = 660,
-      y = 320,
-      width = 120,
-      height = 40,
+      imgPath = "assets/graphics/exitButton.png",
+      img = nil,
+      x = 536,
+      y = 460,
+      widthScale = 0.1,
+      heightScale = 0.1,
       onClick = function (game)
         love.window.close()
       end
@@ -26,10 +30,12 @@ local buttons = {
   game = {},
   levelComplete = {
     nextLevel = {
+      imgPath = "assets/graphics/startButton.png",
+      img = nil,
       x = 580,
       y = 560,
-      width = 120,
-      height = 40,
+      widthScale = 0.1,
+      heightScale = 0.1,
       onClick = function (game)
         game.screen.currentScreen "game"
         game.screen.currentDay = game.screen.currentDay + 1
@@ -39,28 +45,31 @@ local buttons = {
   }
 }
 
+local backgrounds = {
+  menu = {},
+  game = {},
+  levelComplete = {}
+}
+
 function endDay(game, message)
   game.screen.currentScreen = "levelComplete"
 end
 
 function renderBG(game, message)
-  if game.screen.currentScreen == "menu" then
-
-  elseif game.screen.currentScreen == "game" then
-
-  elseif game.screen.currentScreen == "levelComplete" then
-
+  for k, background in pairs(backgrounds[game.screen.currentScreen]) do
+    love.graphics.draw(background.img, background.x, background.y)
   end
 end
 
 function renderUI(game, message)
   for k, button in pairs(buttons[game.screen.currentScreen]) do
-    love.graphics.rectangle(
-      "fill",
+    love.graphics.draw(
+      button.img,
       button.x,
       button.y,
-      button.width,
-      button.height
+      0,
+      button.widthScale,
+      button.heightScale
     )
   end
 end
@@ -98,6 +107,14 @@ function registerScreen(game)
     currentDay = 0,
     buttonPressed = nil
   }
+
+  for k, buttonGroup in pairs(buttons) do
+    for i, button in pairs(buttonGroup) do
+      button.img = love.graphics.newImage(button.imgPath)
+      button.width = button.img:getWidth() * button.widthScale
+      button.height = button.img:getHeight() * button.heightScale
+    end
+  end
 
   game:on('DAY_END', endDay)
   game:on('RENDER_BG', renderBG)
