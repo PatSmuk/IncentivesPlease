@@ -18,7 +18,7 @@ function dispatcher.createDispatcher()
     if message.loggable then
       local s = message.type.." { "
       for k, v in pairs(message) do
-        if k ~= type then
+        if k ~= "type" then
           s = s..k..": "..tostring(v)..", "
         end
       end
@@ -29,7 +29,7 @@ function dispatcher.createDispatcher()
       return
     end
     for i, handler in ipairs(handlers[message.type]) do
-      handler(message)
+      handler(dispatcher, message)
     end
   end
 
