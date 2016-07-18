@@ -1,6 +1,14 @@
 local MAX_STRIKES = 3
 local SUCCESSFUL_ID_AMMOUNT = 5
 local FAILED_ID_AMOUNT = 10
+local CC_FONT = love.graphics.newFont("assets/font/BebasNeue Bold.ttf", 28)
+
+local APPROVED_X = 580
+local APPROVED_Y = 710
+local DENIED_X = 580
+local DENIED_Y = 970
+local SUBMITTED_X = 45
+local SUBMITTED_Y = 820
 
 local CC = {}
 
@@ -14,7 +22,6 @@ function CC.register(game)
   game.claimChecking.totalBalance = 0
   game.claimChecking.strikes = 0
   game.claimChecking.dayStarted = false
-  game.claimChecking.renderCount = 0
 
   game:on("DAY_START", CC.startDay)
   game:on("CLAIM_APPROVED", CC.incrementClaimsApproved)
@@ -64,12 +71,21 @@ function CC.startDay(game, message)
 end
 
 function CC.renderClaimCounters(game, message)
-  game.claimChecking.renderCount = game.claimChecking.renderCount + 1
+  love.graphics.push("all")
+  love.graphics.setFont(CC_FONT)
   if game.claimChecking.dayStarted then
-    love.graphics.setColor(255, 255, 255)
-    love.graphics.rectangle("fill", 200, 500, 60, 120)
+    approvedText = game.claimChecking.claimsApproved
+    deniedText = game.claimChecking.claimsDenied
+    submittedText = game.claimChecking.claimsApproved + game.claimChecking.claimsDenied
 
+    love.graphics.setColor(0, 148, 68)
+    love.graphics.print(approvedText, APPROVED_X, APPROVED_Y)
+    love.graphics.setColor(255, 0, 0)
+    love.graphics.print(deniedText, DENIED_X, DENIED_Y)
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.print(submittedText, SUBMITTED_X, SUBMITTED_Y)
   end
+  love.graphics.pop()
 end
 
 return CC
