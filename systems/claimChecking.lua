@@ -53,7 +53,6 @@ end
 function CC.endDay(game, message)
   game.claimChecking.dayStarted = false
   game.claimChecking.dayEnded = true
-
 end
 
 -----------------
@@ -131,10 +130,9 @@ function CC.renderClaimCounters(game, message)
   love.graphics.setColor(255, 0, 0)
   love.graphics.print(deniedText, DENIED_X, DENIED_Y)
   love.graphics.setColor(0, 0, 0)
-  love.graphics.print(moneyMadeText, 40, 25)
+  love.graphics.print(moneyMadeText, 40, 20)
   drawStrikeBoxes()
-  love.graphics.setColor(255, 0, 0)
-  love.graphics.print(strikeCounter, 41, 53)
+
 
 end
 
@@ -143,6 +141,8 @@ function drawStrikeBoxes ()
   love.graphics.rectangle("fill", 40, 50, 15, 30)
   love.graphics.rectangle("fill", 60, 50, 15, 30)
   love.graphics.rectangle("fill", 80, 50, 15, 30)
+  love.graphics.setColor(255, 0, 0)
+  love.graphics.print(strikeCounter, 41, 53)
 end
 
 function CC.renderDayEnd(game, message)
