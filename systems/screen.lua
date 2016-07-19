@@ -7,10 +7,9 @@ local buttons = {
   menu = {
     start = {
       imgPath = "assets/graphics/startButton.png",
-      x = 854,
+      x = 810,
       y = 750,
-      widthScale = 0.1,
-      heightScale = 0.1,
+      scale = 1,
       onClick = function (game)
         game.screen.bgmusic:setLooping(true)
         game.screen.bgmusic:play()
@@ -23,10 +22,9 @@ local buttons = {
     },
     quit = {
       imgPath = "assets/graphics/exitButton.png",
-      x = 854,
-      y = 825,
-      widthScale = 0.1,
-      heightScale = 0.1,
+      x = 810,
+      y = 850,
+      scale = 1,
       onClick = function (game)
         love.event.quit()
       end
@@ -38,8 +36,7 @@ local buttons = {
       imgPath = "assets/graphics/nextLevelButton.png",
       x = 810,
       y = 750,
-      widthScale = 1,
-      heightScale = 1,
+      scale = 1,
       onClick = function (game)
         game.screen.bgmusic:setPitch(game.screen.bgmusic:getPitch()+0.1)
 
@@ -55,8 +52,7 @@ local buttons = {
       imgPath = "assets/graphics/playAgainButton.png",
       x = 810,
       y = 750,
-      widthScale = 1,
-      heightScale = 1,
+      scale = 1,
       onClick = function (game)
         game.screen.bgmusic:setPitch(1.0)
         game.screen.bgmusic:play()
@@ -69,10 +65,9 @@ local buttons = {
     },
     quit = {
       imgPath = "assets/graphics/exitButton.png",
-      x = 854,
+      x = 810,
       y = 850,
-      widthScale = 0.1,
-      heightScale = 0.1,
+      scale = 1,
       onClick = function (game)
         love.event.quit()
       end
@@ -143,6 +138,11 @@ function screen.update(game, message)
      game.screen.logo.animation(message.dt, game.screen.logo.endValue) then
     game.screen.logo.animation = nil
   end
+
+  if game.screen.button.animation and
+     game.screen.button.animation(message.dt) then
+     game.screen.button.animation = nil
+  end
 end
 
 function screen.endDay(game, message)
@@ -173,14 +173,13 @@ end
 
 function screen.renderUI(game, message)
   for k, button in pairs(buttons[game.screen.currentScreen]) do
+    love.graphics.push()
+    love.graphics.translate(button.x + button.width/2, button.y + button.height/2)
+    love.graphics.scale(button.scale, button.scale)
     love.graphics.draw(
-      button.img,
-      button.x,
-      button.y,
-      0,
-      button.widthScale,
-      button.heightScale
+      button.img, -button.width/2, -button.height/2
     )
+    love.graphics.pop()
   end
 end
 
@@ -191,6 +190,12 @@ function screen.mousePress(game, message)
        message.y >= button.y and
        message.y <= button.y + button.height then
       game.screen.buttonPressed = k
+      game.screen.button.animation = createAnimator(
+        button.scale, 0.9, 0.5, 0.1, 0.1,
+        function (scale)
+          button.scale = scale
+        end
+      )
     end
   end
 end
@@ -204,6 +209,12 @@ function screen.mouseRelease(game, message)
        game.screen.buttonPressed == k then
       button.onClick(game)
     end
+    game.screen.button.animation = createAnimator(
+      button.scale, 1, 0.5, 0.1, 0.1,
+      function (scale)
+        button.scale = scale
+      end
+    )
   end
 
   game.screen.buttonPressed = nil
@@ -217,14 +228,15 @@ function screen.register(game)
     currentDay = 0,
     logo = {
       endValue = 0.1
-    }
+    },
+    button = {}
   }
 
   for k, buttonGroup in pairs(buttons) do
     for i, button in pairs(buttonGroup) do
       button.img = love.graphics.newImage(button.imgPath)
-      button.width = button.img:getWidth() * button.widthScale
-      button.height = button.img:getHeight() * button.heightScale
+      button.width = button.img:getWidth()
+      button.height = button.img:getHeight()
     end
   end
 
