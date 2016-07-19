@@ -11,8 +11,8 @@ local buttons = {
       widthScale = 0.1,
       heightScale = 0.1,
       onClick = function (game)
-        sfxGameStart = love.audio.newSource("assets/sfx/game_start.wav","static")
-        sfxGameStart:play()
+        game.screen.bgmusic:setLooping(true)
+        game.screen.bgmusic:play()
         game.screen.currentScreen = "game"
         game.screen.currentDay = 1
         game:dispatch(messages.DAY_START(game.screen.currentDay))
@@ -38,6 +38,8 @@ local buttons = {
       widthScale = 0.1,
       heightScale = 0.1,
       onClick = function (game)
+        game.screen.bgmusic:setPitch(game.screen.bgmusic:getPitch()+0.1)
+
         game.screen.currentScreen = "game"
         game.screen.currentDay = game.screen.currentDay + 1
         game:dispatch(messages.DAY_START(game.screen.currentDay))
@@ -45,6 +47,7 @@ local buttons = {
     }
   },
   gameComplete = {
+    
     startAgain = {
       imgPath = "assets/graphics/startButton.png",
       x = 854,
@@ -52,6 +55,8 @@ local buttons = {
       widthScale = 0.1,
       heightScale = 0.1,
       onClick = function (game)
+        game.screen.bgmusic:setPitch(1.0)
+        game.screen.bgmusic:play()
         game.screen.currentScreen = "game"
         game.screen.currentDay = 1
         game:dispatch(messages.DAY_START(game.screen.currentDay))
@@ -115,8 +120,11 @@ local backgrounds = {
 }
 
 function screen.endDay(game, message)
-  if (message.day == 5) then
+  if (message.day == 1) then
     game.screen.currentScreen = "gameComplete"
+    game.screen.bgmusic:stop()
+    sfxGameEnd = love.audio.newSource("assets/sfx/game_end.wav","static")
+    sfxGameEnd:play()
   else
     game.screen.currentScreen = "levelComplete"
     sfxNextLevel = love.audio.newSource("assets/sfx/next_level.wav","static")
@@ -198,6 +206,9 @@ function screen.register(game)
       background.height = background.img:getHeight() * background.heightScale
     end
   end
+
+  game.screen.bgmusic = love.audio.newSource("assets/sfx/music_1.wav")
+  
 
   game:on('DAY_END', screen.endDay)
   game:on('RENDER_BG', screen.renderBG)
