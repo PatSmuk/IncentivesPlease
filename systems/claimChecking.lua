@@ -53,6 +53,7 @@ end
 function CC.endDay(game, message)
   game.claimChecking.dayStarted = false
   game.claimChecking.dayEnded = true
+
 end
 
 -----------------
@@ -145,23 +146,40 @@ function drawStrikeBoxes ()
 end
 
 function CC.renderDayEnd(game, message)
-  if game.claimChecking.dayBalance > 0 then
-    moneyMade = "You made " .. game.claimChecking.dayBalance .. " JBucks today!"
-  elseif game.claimChecking.dayBalance == 0 then
-    moneyMade = "You made no money today.  Some days getting out of bed just isn't worth it"
+  if game.claimChecking.currentDay == 5 then
+    CC.renderGameEnd(game, message)
   else
-    moneyMade = "You lost " .. math.abs(game.claimChecking.dayBalance) .. " JBucks today.  Your family is proud?"
+    if game.claimChecking.dayBalance > 0 then
+      moneyMade = "You made " .. game.claimChecking.dayBalance .. " JBucks today!"
+    elseif game.claimChecking.dayBalance == 0 then
+      moneyMade = "You made no money today.  Some days getting out of bed just isn't worth it"
+    else
+      moneyMade = "You lost " .. math.abs(game.claimChecking.dayBalance) .. " JBucks today.  Your family is proud?"
+    end
+
+    if game.claimChecking.wrongId == 1 then
+      strikesText = "You made 1 mistake"
+    else
+      strikesText = "You made " .. game.claimChecking.wrongId .. " mistakes"
+    end
+
+    love.graphics.printf(moneyMade, 0, 400, 1920, "center")
+    love.graphics.printf(strikesText, 0, 450, 1920, "center")
+  end
+end
+
+function CC.renderGameEnd(game, message)
+  endText = "Your week and Incentives Please is done, you can choose to work harder or give up."
+  finalMoneyText = ""
+  if game.claimChecking.totalBalance == 0 then
+    finalMoneyText = "You didn't manage to make any money.  It is suggested you work harder."
+  elseif game.claimChecking.totalBalance < 0 then
+    finalMoneyText = "You cost the company " .. math.abs(game.claimChecking.totalBalance) .. ".  Just sayin'..."
+  elseif game.claimChecking.totalBalance > 0 then
+    finalMoneyText = "Great success!  You have made " .. game.claimChecking.totalBalance .. " JBucks.  Buy yourself something nice."
   end
 
-  if game.claimChecking.wrongId == 1 then
-    strikesText = "You made 1 mistake"
-  else
-    strikesText = "You made " .. game.claimChecking.wrongId .. " mistakes"
-  end
-
-  love.graphics.printf(moneyMade, 0, 400, 1920, "center")
-  love.graphics.printf(strikesText, 0, 450, 1920, "center")
-
+  love.graphics.printf(finalMoneyText, 0, 400, 1920, "center")
 end
 
 function CC.renderClaimUI(game, message)
