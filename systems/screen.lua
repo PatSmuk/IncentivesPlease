@@ -134,22 +134,13 @@ local backgroundsOrder = {
 
 function screen.update(game, message)
   if backgrounds.menu.logo.orientation <= -0.1 then
-    game.screen.logo.animation = createAnimator(
-      backgrounds.menu.logo.orientation, 0.1, 0.05, 0.01, 0.0000001,
-      function (orientation)
-        backgrounds.menu.logo.orientation = orientation
-      end
-    )
+    game.screen.logo.endValue = 0.1
   elseif backgrounds.menu.logo.orientation >= 0.1 then
-    game.screen.logo.animation = createAnimator(
-      backgrounds.menu.logo.orientation, -0.1, 0.05, 0.01, 0.0000001,
-      function (orientation)
-        backgrounds.menu.logo.orientation = orientation
-      end
-    )
+    game.screen.logo.endValue = -0.1
   end
 
-  if game.screen.logo.animation and game.screen.logo.animation(message.dt) then
+  if game.screen.logo.animation and
+     game.screen.logo.animation(message.dt, game.screen.logo.endValue) then
     game.screen.logo.animation = nil
   end
 end
@@ -225,7 +216,7 @@ function screen.register(game)
     currentScreen = "menu",
     currentDay = 0,
     logo = {
-      direction = "right"
+      endValue = 0.1
     }
   }
 
@@ -251,7 +242,7 @@ function screen.register(game)
   sfxGameStart:play()
 
   game.screen.logo.animation = createAnimator(
-    backgrounds.menu.logo.orientation, 0.1, 0.05, 0.01, 0.0000001,
+    backgrounds.menu.logo.orientation, game.screen.logo.endValue, 0.1, 0.05, 0.0000001,
     function (orientation)
       backgrounds.menu.logo.orientation = orientation
     end
