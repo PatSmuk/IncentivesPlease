@@ -32,7 +32,7 @@ local buttons = {
     nextLevel = {
       imgPath = "assets/graphics/startButton.png",
       x = 854,
-      y = 560,
+      y = 750,
       widthScale = 0.1,
       heightScale = 0.1,
       onClick = function (game)
@@ -75,6 +75,13 @@ local backgrounds = {
       y = 541,
       widthScale = 1,
       heightScale = 1
+    },
+    zoomed = {
+      imgPath = "assets/graphics/zoomedBackground.png",
+      x = 641,
+      y = 0,
+      widthScale = 5.25,
+      heightScale = 5.25
     }
   },
   levelComplete = {}
