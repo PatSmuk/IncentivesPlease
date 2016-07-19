@@ -1,6 +1,7 @@
 local screen = {}
 
 local messages = require("../messages")
+local createAnimator = require("animation")
 
 local buttons = {
   menu = {
@@ -13,8 +14,10 @@ local buttons = {
       onClick = function (game)
         game.screen.bgmusic:setLooping(true)
         game.screen.bgmusic:play()
+
         game.screen.currentScreen = "game"
         game.screen.currentDay = 1
+
         game:dispatch(messages.DAY_START(game.screen.currentDay))
       end
     },
@@ -32,40 +35,42 @@ local buttons = {
   game = {},
   levelComplete = {
     nextLevel = {
-      imgPath = "assets/graphics/startButton.png",
-      x = 854,
+      imgPath = "assets/graphics/nextLevelButton.png",
+      x = 810,
       y = 750,
-      widthScale = 0.1,
-      heightScale = 0.1,
+      widthScale = 1,
+      heightScale = 1,
       onClick = function (game)
         game.screen.bgmusic:setPitch(game.screen.bgmusic:getPitch()+0.1)
 
         game.screen.currentScreen = "game"
         game.screen.currentDay = game.screen.currentDay + 1
+
         game:dispatch(messages.DAY_START(game.screen.currentDay))
       end
     }
   },
   gameComplete = {
-    
     startAgain = {
-      imgPath = "assets/graphics/startButton.png",
-      x = 854,
+      imgPath = "assets/graphics/playAgainButton.png",
+      x = 810,
       y = 750,
-      widthScale = 0.1,
-      heightScale = 0.1,
+      widthScale = 1,
+      heightScale = 1,
       onClick = function (game)
         game.screen.bgmusic:setPitch(1.0)
         game.screen.bgmusic:play()
+
         game.screen.currentScreen = "game"
         game.screen.currentDay = 1
+
         game:dispatch(messages.DAY_START(game.screen.currentDay))
       end
     },
     quit = {
       imgPath = "assets/graphics/exitButton.png",
       x = 854,
-      y = 825,
+      y = 850,
       widthScale = 0.1,
       heightScale = 0.1,
       onClick = function (game)
@@ -81,6 +86,7 @@ local backgrounds = {
       imgPath = "assets/graphics/background.png",
       x = 0,
       y = 0,
+      orientation = 0,
       widthScale = 1,
       heightScale = 1
     },
@@ -88,6 +94,7 @@ local backgrounds = {
       imgPath = "assets/graphics/logo.png",
       x = 758,
       y = 200,
+      orientation = 0,
       widthScale = 0.2,
       heightScale = 0.2
     }
@@ -97,6 +104,7 @@ local backgrounds = {
       imgPath = "assets/graphics/desk-view.png",
       x = 0,
       y = 0,
+      orientation = 0,
       widthScale = 1,
       heightScale = 1
     },
@@ -104,20 +112,59 @@ local backgrounds = {
       imgPath = "assets/graphics/InvoiceView.png",
       x = 0,
       y = 541,
+      orientation = 0,
       widthScale = 1,
       heightScale = 1
     },
+    deskMat = {
+      imgPath = "assets/graphics/matSm.png",
+      x = 192,
+      y = 702,
+      orientation = 0,
+      widthScale = 0.6,
+      heightScale = 0.6,
+    },
     zoomed = {
-      imgPath = "assets/graphics/zoomedBackground.png",
+      imgPath = "assets/graphics/matLg.png",
       x = 641,
       y = 0,
-      widthScale = 5.25,
-      heightScale = 5.25
+      orientation = 0,
+      widthScale = 1,
+      heightScale = 1
     }
   },
   levelComplete = {},
   gameComplete = {}
 }
+
+local backgroundsOrder = {
+  menu = {"bg", "logo"},
+  game = {"desk", "invoice", "zoomed", "deskMat"},
+  levelComplete = {},
+  gameComplete = {}
+}
+
+function screen.update(game, message)
+  if backgrounds.menu.logo.orientation <= -0.1 then
+    game.screen.logo.animation = createAnimator(
+      backgrounds.menu.logo.orientation, 0.1, 0.05, 0.01, 0.0000001,
+      function (orientation)
+        backgrounds.menu.logo.orientation = orientation
+      end
+    )
+  elseif backgrounds.menu.logo.orientation >= 0.1 then
+    game.screen.logo.animation = createAnimator(
+      backgrounds.menu.logo.orientation, -0.1, 0.05, 0.01, 0.0000001,
+      function (orientation)
+        backgrounds.menu.logo.orientation = orientation
+      end
+    )
+  end
+
+  if game.screen.logo.animation and game.screen.logo.animation(message.dt) then
+    game.screen.logo.animation = nil
+  end
+end
 
 function screen.endDay(game, message)
   if (message.day == 5) then
@@ -133,12 +180,22 @@ function screen.endDay(game, message)
 end
 
 function screen.renderBG(game, message)
-  for k, background in pairs(backgrounds[game.screen.currentScreen]) do
+  for i, backgroundKey in ipairs(backgroundsOrder[game.screen.currentScreen]) do
+    -- love.graphics.push()
+    -- love.graphics.translate(background.x + background.width/2, background.y + background.height/2)
+    -- love.graphics.rotate(background.orientation)
+    -- love.graphics.scale(background.widthScale, background.heightScale)
+    -- love.graphics.draw(
+    --   background.img, -background.width, -background.height
+    -- )
+    -- love.graphics.pop()
+    local background = backgrounds[game.screen.currentScreen][backgroundKey]
+    print(background.imgPath)
     love.graphics.draw(
       background.img,
       background.x,
       background.y,
-      0,
+      background.orientation,
       background.widthScale,
       background.heightScale
     )
@@ -189,6 +246,9 @@ function screen.register(game)
   game.screen = {
     currentScreen = "menu",
     currentDay = 0,
+    logo = {
+      direction = "right"
+    }
   }
 
   for k, buttonGroup in pairs(buttons) do
@@ -208,10 +268,18 @@ function screen.register(game)
   end
 
   game.screen.bgmusic = love.audio.newSource("assets/sfx/music_1.wav")
-  
+
   sfxGameStart = love.audio.newSource("assets/sfx/game_start.wav","static")
   sfxGameStart:play()
-  
+
+  game.screen.logo.animation = createAnimator(
+    backgrounds.menu.logo.orientation, 0.1, 0.05, 0.01, 0.0000001,
+    function (orientation)
+      backgrounds.menu.logo.orientation = orientation
+    end
+  )
+
+  game:on('UPDATE', screen.update)
   game:on('DAY_END', screen.endDay)
   game:on('RENDER_BG', screen.renderBG)
   game:on('RENDER_UI', screen.renderUI)

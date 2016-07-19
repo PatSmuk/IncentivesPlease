@@ -52,10 +52,10 @@ function love.keypressed(key)
   end
 
   if debugActive then
-    debugAnimation = createAnimator(debugAlpha, 0, 180, 20, function (alpha) debugAlpha = alpha end)
+    debugAnimation = createAnimator(debugAlpha, 0, 180, 20, 0.1, function (alpha) debugAlpha = alpha end)
     debugActive = false
   else
-    debugAnimation = createAnimator(debugAlpha, 255, 180, 20, function (alpha) debugAlpha = alpha end)
+    debugAnimation = createAnimator(debugAlpha, 255, 180, 20, 0.1, function (alpha) debugAlpha = alpha end)
     debugActive = true
   end
 end

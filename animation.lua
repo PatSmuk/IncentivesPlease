@@ -1,4 +1,4 @@
-local function createAnimator(startValue, endValue, stiffness, damping, callback)
+local function createAnimator(startValue, endValue, stiffness, damping, precision, callback)
   local x = startValue
   local v = 0
 
@@ -9,7 +9,7 @@ local function createAnimator(startValue, endValue, stiffness, damping, callback
       local a = Fspring + Fdamper
       local newV = v + a * dt
       local newX = x + newV * dt
-      if newV < 0.01 and math.abs(x - newX) < 0.01 then
+      if newV < precision and math.abs(x - newX) < precision then
         callback(endValue)
         break
       else
