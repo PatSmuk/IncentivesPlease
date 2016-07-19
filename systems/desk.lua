@@ -180,6 +180,10 @@ function desk.pickUpClaim(game, message)
         }
       }
       game.desk.activeClaim = claim
+
+      sfxPickupClaim = love.audio.newSource("assets/sfx/pickup_claim.wav","static")
+      sfxPickupClaim:play()
+
     end
   end
 end
