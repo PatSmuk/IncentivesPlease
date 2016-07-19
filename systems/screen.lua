@@ -43,6 +43,30 @@ local buttons = {
         game:dispatch(messages.DAY_START(game.screen.currentDay))
       end
     }
+  },
+  gameComplete = {
+    startAgain = {
+      imgPath = "assets/graphics/startButton.png",
+      x = 854,
+      y = 750,
+      widthScale = 0.1,
+      heightScale = 0.1,
+      onClick = function (game)
+        game.screen.currentScreen = "game"
+        game.screen.currentDay = 1
+        game:dispatch(messages.DAY_START(game.screen.currentDay))
+      end
+    },
+    quit = {
+      imgPath = "assets/graphics/exitButton.png",
+      x = 854,
+      y = 825,
+      widthScale = 0.1,
+      heightScale = 0.1,
+      onClick = function (game)
+        love.event.quit()
+      end
+    }
   }
 }
 
@@ -86,13 +110,18 @@ local backgrounds = {
       heightScale = 5.25
     }
   },
-  levelComplete = {}
+  levelComplete = {},
+  gameComplete = {}
 }
 
 function screen.endDay(game, message)
-  sfxNextLevel = love.audio.newSource("assets/sfx/next_level.wav","static")
-  sfxNextLevel:play()
-  game.screen.currentScreen = "levelComplete"
+  if (message.day == 5) then
+    game.screen.currentScreen = "gameComplete"
+  else
+    game.screen.currentScreen = "levelComplete"
+    sfxNextLevel = love.audio.newSource("assets/sfx/next_level.wav","static")
+    sfxNextLevel:play()
+  end
 end
 
 function screen.renderBG(game, message)
