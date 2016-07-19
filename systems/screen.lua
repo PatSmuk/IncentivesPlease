@@ -209,7 +209,9 @@ function screen.register(game)
 
   game.screen.bgmusic = love.audio.newSource("assets/sfx/music_1.wav")
   
-
+  sfxGameStart = love.audio.newSource("assets/sfx/game_start.wav","static")
+  sfxGameStart:play()
+  
   game:on('DAY_END', screen.endDay)
   game:on('RENDER_BG', screen.renderBG)
   game:on('RENDER_UI', screen.renderUI)
