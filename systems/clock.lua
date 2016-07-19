@@ -6,7 +6,7 @@ local START_HOUR = 9
 local START_MIN = 0
 local END_HOUR = 10
 local END_MIN = 59
-local CLOCK_SPEED = 15
+local CLOCK_SPEED = 3
 
 local font = love.graphics.newFont("assets/font/DS-DIGI.ttf", 60)
 local amFont = love.graphics.newFont("assets/font/DS-DIGI.ttf", 17)
