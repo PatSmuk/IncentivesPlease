@@ -13,7 +13,8 @@ local BOX_INBOX = {
   x       = 6,
   y       = 540 + 228,
   width   = 90,
-  height  = 120
+  height  = 120,
+  glow    = love.graphics.newImage("assets/graphics/blueGlow.png")
 }
 local BOX_APPROVED = {
   x       = 540,
@@ -180,7 +181,10 @@ function desk.register(game)
 
   game.desk = {
     activeClaim = nil,
-    currentDay = nil
+    currentDay = nil,
+    inboxGlowAlpha = 255,
+    inboxGlowAnimator = createAnimator(255, 0, 100, 20, 2, function (alpha) game.desk.inboxGlowAlpha = alpha end),
+    inboxGlowGrowing = false
   }
 
   game:on("DAY_START", desk.startDay)
@@ -397,17 +401,33 @@ function desk.drawTable(game, message)
     love.graphics.pop()
 
     love.graphics.setScissor()
+  else
+    love.graphics.setColor(255, 255, 255, game.desk.inboxGlowAlpha)
+    love.graphics.draw(BOX_INBOX.glow, BOX_INBOX.x - 8, BOX_INBOX.y - 6)
   end
 
   love.graphics.pop()
 end
 
 function desk.updateAnimations(game, message)
-  if not game.desk.currentDay or not game.desk.activeClaim then
+  if not game.desk.currentDay then
     return
   end
 
+  if game.desk.inboxGlowGrowing then
+    if game.desk.inboxGlowAnimator(message.dt, 255) then
+      game.desk.inboxGlowGrowing = false
+    end
+  else
+    if game.desk.inboxGlowAnimator(message.dt, 0) then
+      game.desk.inboxGlowGrowing = true
+    end
+  end
+
   local claim = game.desk.activeClaim
+  if not claim then
+    return
+  end
   claim.xAnimator(message.dt, claim.targetX)
   claim.yAnimator(message.dt, claim.targetY)
 
