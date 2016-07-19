@@ -174,7 +174,7 @@ local CLAIM_REQUEST_IMAGES = {
 local INVOICE_FONT = love.graphics.newFont("assets/font/Raleway-Medium.ttf", 24)
 local PICKUP_CLAIM_SOUND = love.audio.newSource("assets/sfx/pickup_claim.wav","static")
 
-local DAYS_PER_MONTH = {30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30}
+local DAYS_PER_MONTH = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 
 function desk.register(game)
   print("Registering table system")
