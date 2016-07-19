@@ -141,8 +141,28 @@ local INVOICE_TEMPLATES = {
     dealerName = "Munster & Sons"
   }
 }
-local CLAIM_REQUEST_IMAGE_LARGE = love.graphics.newImage("assets/graphics/claimReferenceLg.png")
-local CLAIM_REQUEST_IMAGE_SMALL = love.graphics.newImage("assets/graphics/claimReferenceSm.png")
+local CLAIM_REQUEST_IMAGES = {
+  {
+    large = love.graphics.newImage("assets/graphics/claimA.png"),
+    small = love.graphics.newImage("assets/graphics/claimAsm.png")
+  },
+  {
+    large = love.graphics.newImage("assets/graphics/claimB.png"),
+    small = love.graphics.newImage("assets/graphics/claimBsm.png")
+  },
+  {
+    large = love.graphics.newImage("assets/graphics/claimC.png"),
+    small = love.graphics.newImage("assets/graphics/claimCsm.png")
+  },
+  {
+    large = love.graphics.newImage("assets/graphics/claimD.png"),
+    small = love.graphics.newImage("assets/graphics/claimDsm.png")
+  },
+  {
+    large = love.graphics.newImage("assets/graphics/claimE.png"),
+    small = love.graphics.newImage("assets/graphics/claimEsm.png")
+  }
+}
 local INVOICE_FONT = love.graphics.newFont("assets/font/Raleway-Medium.ttf", 24)
 local PICKUP_CLAIM_SOUND = love.audio.newSource("assets/sfx/pickup_claim.wav","static")
 
@@ -327,11 +347,12 @@ function desk.drawTable(game, message)
   local claim = game.desk.activeClaim
   if claim then
     love.graphics.draw(INVOICE_TEMPLATES[claim.invoice.dealer].smallImage, claim.x + claim.slideXOffset, claim.y)
-    love.graphics.draw(CLAIM_REQUEST_IMAGE_SMALL, claim.x, claim.y)
+    love.graphics.draw(CLAIM_REQUEST_IMAGES[game.desk.currentDay].small, claim.x, claim.y)
 
     local x = (claim.x - ZOOM_ZONE.x) * 5 + ZOOM_VIEW.x
     local y = (claim.y - ZOOM_ZONE.y) * 5
     love.graphics.setScissor(ZOOM_VIEW.x, ZOOM_VIEW.y, ZOOM_VIEW.width, ZOOM_VIEW.height)
+
     love.graphics.push()
     love.graphics.translate(x + claim.slideXOffset * 9, y)
     love.graphics.draw(INVOICE_TEMPLATES[claim.invoice.dealer].largeImage, 0, 0)
@@ -341,15 +362,19 @@ function desk.drawTable(game, message)
     end
     love.graphics.setColor(255, 255, 255)
     love.graphics.pop()
+
     love.graphics.push()
     love.graphics.translate(x, y)
-    love.graphics.draw(CLAIM_REQUEST_IMAGE_LARGE, 0, 0)
+    love.graphics.draw(CLAIM_REQUEST_IMAGES[game.desk.currentDay].large, 0, 0)
     love.graphics.setColor(40, 40, 40)
-    for field, dimensions in pairs(INVOICE_FIELD_DIMENSIONS) do
+    for i = 1, game.desk.currentDay do
+      local field = INVOICE_FIELDS[i]
+      local dimensions = INVOICE_FIELD_DIMENSIONS[field]
       love.graphics.print(tostring(claim.request[field]), dimensions.x, dimensions.y)
     end
     love.graphics.setColor(255, 255, 255)
     love.graphics.pop()
+    
     love.graphics.setScissor()
   end
 
