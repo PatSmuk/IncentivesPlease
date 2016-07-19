@@ -2,6 +2,9 @@ local MAX_STRIKES = 3
 local SUCCESSFUL_ID_AMOUNT = 5
 local FAILED_ID_AMOUNT = 10
 local CC_FONT = love.graphics.newFont("assets/font/BebasNeue Bold.ttf", 28)
+local END_SCREEN_FONT = love.graphics.newFont("assets/font/BebasNeue Bold.ttf", 136)
+local DAY_END_BG_PATH = "assets/graphics/backgroundDayEnd.png"
+local DAY_END_BG = love.graphics.newImage(DAY_END_BG_PATH)
 
 local APPROVED_X = 580
 local APPROVED_Y = 710
@@ -48,6 +51,9 @@ function CC.startDay(game, message)
   game.claimChecking.wrongId = 0
   game.claimChecking.correctId = 0
   game.claimChecking.dayBalance = 0
+  if message.day == 1 then
+    game.claimChecking.totalBalance = 0
+  end
 end
 
 function CC.endDay(game, message)
@@ -111,6 +117,15 @@ end
 -- SHOW STUFF ON THE SCREEN --
 ------------------------------
 
+function drawSuccessfulId()
+  successPath = "assets/graphics/correctIcon.png"
+  moneyPath = "assets/graphics/moneyIcon.png"
+end
+
+function drawFailedId()
+  failedPath = "assets/graphics/wrongIcon.png"
+end
+
 function CC.renderClaimCounters(game, message)
   approvedText = game.claimChecking.claimsApproved
   deniedText = game.claimChecking.claimsDenied
@@ -132,8 +147,6 @@ function CC.renderClaimCounters(game, message)
   love.graphics.setColor(0, 0, 0)
   love.graphics.print(moneyMadeText, 40, 20)
   drawStrikeBoxes()
-
-
 end
 
 function drawStrikeBoxes ()
@@ -146,6 +159,8 @@ function drawStrikeBoxes ()
 end
 
 function CC.renderDayEnd(game, message)
+  love.graphics.draw(DAY_END_BG, 0, 0)
+  love.graphics.setColor(0, 0, 0)
   if game.claimChecking.currentDay == 5 then
     CC.renderGameEnd(game, message)
   else
@@ -163,8 +178,8 @@ function CC.renderDayEnd(game, message)
       strikesText = "You made " .. game.claimChecking.wrongId .. " mistakes"
     end
 
-    love.graphics.printf(moneyMade, 0, 400, 1920, "center")
-    love.graphics.printf(strikesText, 0, 450, 1920, "center")
+    love.graphics.printf(moneyMade, 0, 100, 1920, "center")
+    love.graphics.printf(strikesText, 0, 400, 1920, "center")
   end
 end
 
@@ -179,15 +194,18 @@ function CC.renderGameEnd(game, message)
     finalMoneyText = "Great success!  You have made " .. game.claimChecking.totalBalance .. " JBucks.  Buy yourself something nice."
   end
 
-  love.graphics.printf(finalMoneyText, 0, 400, 1920, "center")
+  love.graphics.printf(finalMoneyText, 0, 200, 1920, "center")
 end
 
 function CC.renderClaimUI(game, message)
   love.graphics.push("all")
-  love.graphics.setFont(CC_FONT)
+
   if game.claimChecking.dayStarted then
+    love.graphics.setFont(CC_FONT)
     CC.renderClaimCounters(game, message)
   elseif game.claimChecking.dayEnded then
+
+    love.graphics.setFont(END_SCREEN_FONT)
     CC.renderDayEnd(game, message)
   end
   love.graphics.pop()
