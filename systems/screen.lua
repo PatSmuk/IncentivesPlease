@@ -120,7 +120,7 @@ local backgrounds = {
 }
 
 function screen.endDay(game, message)
-  if (message.day == 1) then
+  if (message.day == 5) then
     game.screen.currentScreen = "gameComplete"
     game.screen.bgmusic:stop()
     sfxGameEnd = love.audio.newSource("assets/sfx/game_end.wav","static")
