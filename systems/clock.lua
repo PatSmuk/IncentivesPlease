@@ -23,7 +23,6 @@ function clock.register(game)
   game:on("DAY_START", clock.startDay)
   game:on('DAY_START', clock.resetClock)
   game:on('UPDATE', clock.updateClock)
-  -- game:on('DAY_START', clock.renderClock)
   game:on('RENDER_UI', clock.renderClock)
   game:on('DAY_END', clock.endDay)
 end
@@ -60,6 +59,13 @@ function clock.updateClock(game, message)
 		game.clock.addSpace = false
 	end 
 
+	if game.clock.currentHour == END_HOUR - 1 and math.floor(game.clock.currentMin) % 2 == 1 then
+		game.clock.isClockDark = true
+  		love.graphics.setColor(255,255,255,255)
+  	else 
+  		game.clock.isClockDark = false
+  	end
+
 	if game.clock.currentHour == END_HOUR then
 		game:dispatch(DAY_END(game.clock.day))
 		game.clock.clockRunning = false
@@ -72,19 +78,25 @@ function clock.renderClock(game, message)
   --
 	if game.clock.dayStarted then
 		love.graphics.push("all")
-  		love.graphics.setColor(255,0,0,255)
+  		if game.clock.isClockDark then
+  			love.graphics.setColor(0,0,0,255)
+  		else
+  			love.graphics.setColor(255,0,0,255)
+  		end
+
+
   		love.graphics.setFont(font)
 		if game.clock.addSpace and game.clock.currentHour == 1 then
-			love.graphics.print(string.format("%.0f", game.clock.currentHour) .. ":" .. string.format("%02.0f", game.clock.currentMin), 435, 110)
+			love.graphics.print(string.format("%.0f", game.clock.currentHour) .. ":" .. string.format("%02.0f", game.clock.currentMin), 405, 110)
 		elseif game.clock.addSpace then 
-			love.graphics.print(string.format("%.0f", game.clock.currentHour) .. ":" .. string.format("%02.0f", game.clock.currentMin), 422, 110)
+			love.graphics.print(string.format("%.0f", game.clock.currentHour) .. ":" .. string.format("%02.0f", game.clock.currentMin), 392, 110)
 		elseif game.clock.currentHour == 11 then 
-			love.graphics.print(string.format("%.0f", game.clock.currentHour) .. ":" .. string.format("%02.0f", game.clock.currentMin), 420, 110)
+			love.graphics.print(string.format("%.0f", game.clock.currentHour) .. ":" .. string.format("%02.0f", game.clock.currentMin), 390, 110)
 		else
-			love.graphics.print(string.format("%.0f", game.clock.currentHour) .. ":" .. string.format("%02.0f", game.clock.currentMin), 415, 110)
+			love.graphics.print(string.format("%.0f", game.clock.currentHour) .. ":" .. string.format("%02.0f", game.clock.currentMin), 385, 110)
 		end
 		love.graphics.setFont(amFont)
-		love.graphics.print(game.clock.amOrPm, 520, 103)
+		love.graphics.print(game.clock.amOrPm, 490, 103)
 		love.graphics.pop()
 	end
 end
@@ -98,4 +110,9 @@ end
 function clock.endDay(game, message)
 	game.clock.dayStarted = false
 end
+
+function clock.mod(a, b)
+	return a - (math.floor(a/b))
+end
+
 return clock
