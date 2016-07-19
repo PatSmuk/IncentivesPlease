@@ -7,8 +7,6 @@ local APPROVED_X = 580
 local APPROVED_Y = 710
 local DENIED_X = 580
 local DENIED_Y = 970
-local SUBMITTED_X = 45
-local SUBMITTED_Y = 820
 
 local CC = {}
 
@@ -27,14 +25,15 @@ function CC.register(game)
   }
 
   game:on("DAY_START", CC.startDay)
+  game:on("DAY_END", CC.endDay)
   game:on("CLAIM_APPROVED", CC.incrementClaimsApproved)
   game:on("CLAIM_DENIED", CC.incrementClaimsDenied)
   game:on("RENDER_UI", CC.renderClaimUI)
 end
 
-function CC.updateAll(game, message)
-  game.claimChecking.claimsApproved = game.claimChecking.claimsApproved + 1
-  game.claimChecking.claimsDenied = game.claimChecking.claimsDenied + 1
+function CC.endDay(game, message)
+  game.claimChecking.dayStarted = false
+  game.claimChecking.dayEnded = true
 end
 
 function CC.incrementClaimsApproved(game, message)
@@ -71,6 +70,7 @@ end
 
 function CC.startDay(game, message)
   print("Starting day: " .. message.day)
+  game.claimChecking.dayEnded = false
   game.claimChecking.dayStarted = true
   game.claimChecking.currentDay = message.day
   game.claimChecking.strikes = 0
@@ -82,14 +82,22 @@ end
 function CC.renderClaimCounters(game, message)
   approvedText = game.claimChecking.claimsApproved
   deniedText = game.claimChecking.claimsDenied
-  submittedText = game.claimChecking.claimsApproved + game.claimChecking.claimsDenied
 
   love.graphics.setColor(0, 148, 68)
   love.graphics.print(approvedText, APPROVED_X, APPROVED_Y)
   love.graphics.setColor(255, 0, 0)
   love.graphics.print(deniedText, DENIED_X, DENIED_Y)
-  love.graphics.setColor(0, 0, 0)
-  love.graphics.print(submittedText, SUBMITTED_X, SUBMITTED_Y)
+end
+
+function CC.renderDayEnd(game, message)
+  moneyMade = "You made " .. game.claimChecking.dayBalance .. " JBucks today!"
+  strikesText = "You made " .. game.claimChecking.strikes .. " mistakes"
+
+  DAY_END_MESSAGE_X = (1920/2) - (CC_FONT:getWidth(moneyMade)/2)
+
+  love.graphics.print(moneyMade, DAY_END_MESSAGE_X, 400)
+  love.graphics.print(strikesText, DAY_END_MESSAGE_X, 450)
+
 end
 
 function CC.renderClaimUI(game, message)
@@ -97,6 +105,8 @@ function CC.renderClaimUI(game, message)
   love.graphics.setFont(CC_FONT)
   if game.claimChecking.dayStarted then
     CC.renderClaimCounters(game, message)
+  elseif game.claimChecking.dayEnded then
+    CC.renderDayEnd(game, message)
   end
   love.graphics.pop()
 end
