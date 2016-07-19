@@ -240,8 +240,8 @@ function screen.register(game)
   for k, backgroundGroup in pairs(backgrounds) do
     for i, background in pairs(backgroundGroup) do
       background.img = love.graphics.newImage(background.imgPath)
-      background.width = background.img:getWidth() * background.widthScale
-      background.height = background.img:getHeight() * background.heightScale
+      background.width = background.img:getWidth()
+      background.height = background.img:getHeight()
     end
   end
 
