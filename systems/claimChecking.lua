@@ -15,20 +15,21 @@ local CC = {}
 function CC.register(game)
   print("Registering claim checking system")
 
-  game.claimChecking = {}
-  game.claimChecking.claimsApproved = 0
-  game.claimChecking.claimsDenied = 0
-  game.claimChecking.dayBalance = 0
-  game.claimChecking.totalBalance = 0
-  game.claimChecking.strikes = 0
-  game.claimChecking.dayStarted = false
-  game.claimChecking.currentDay = 0
+  game.claimChecking = {
+    claimsApproved = 0,
+    claimsDenied = 0,
+    dayBalance = 0,
+    totalBalance = 0,
+    strikes = 0,
+    currentDay = 0,
+    dayStarted = false,
+    dayEnded = false
+  }
 
   game:on("DAY_START", CC.startDay)
   game:on("CLAIM_APPROVED", CC.incrementClaimsApproved)
   game:on("CLAIM_DENIED", CC.incrementClaimsDenied)
-  game:on("RENDER_UI", CC.renderClaimCounters)
-  game:on("MOUSE_PRESS", CC.updateAll)
+  game:on("RENDER_UI", CC.renderClaimUI)
 end
 
 function CC.updateAll(game, message)
@@ -79,19 +80,23 @@ function CC.startDay(game, message)
 end
 
 function CC.renderClaimCounters(game, message)
+  approvedText = game.claimChecking.claimsApproved
+  deniedText = game.claimChecking.claimsDenied
+  submittedText = game.claimChecking.claimsApproved + game.claimChecking.claimsDenied
+
+  love.graphics.setColor(0, 148, 68)
+  love.graphics.print(approvedText, APPROVED_X, APPROVED_Y)
+  love.graphics.setColor(255, 0, 0)
+  love.graphics.print(deniedText, DENIED_X, DENIED_Y)
+  love.graphics.setColor(0, 0, 0)
+  love.graphics.print(submittedText, SUBMITTED_X, SUBMITTED_Y)
+end
+
+function CC.renderClaimUI(game, message)
   love.graphics.push("all")
   love.graphics.setFont(CC_FONT)
   if game.claimChecking.dayStarted then
-    approvedText = game.claimChecking.claimsApproved
-    deniedText = game.claimChecking.claimsDenied
-    submittedText = game.claimChecking.claimsApproved + game.claimChecking.claimsDenied
-
-    love.graphics.setColor(0, 148, 68)
-    love.graphics.print(approvedText, APPROVED_X, APPROVED_Y)
-    love.graphics.setColor(255, 0, 0)
-    love.graphics.print(deniedText, DENIED_X, DENIED_Y)
-    love.graphics.setColor(0, 0, 0)
-    love.graphics.print(submittedText, SUBMITTED_X, SUBMITTED_Y)
+    CC.renderClaimCounters(game, message)
   end
   love.graphics.pop()
 end
