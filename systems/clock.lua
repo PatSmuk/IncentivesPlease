@@ -4,9 +4,10 @@ local messages = require("../messages")
 local DAY_END = messages.DAY_END
 local START_HOUR = 9
 local START_MIN = 0
-local END_HOUR = 10
+local END_HOUR = 5
 local END_MIN = 59
-local CLOCK_SPEED = 3
+local CLOCK_SPEED = 12
+local FLASH_TIME = 2
 
 local font = love.graphics.newFont("assets/font/DS-DIGI.ttf", 60)
 local amFont = love.graphics.newFont("assets/font/DS-DIGI.ttf", 17)
@@ -22,7 +23,7 @@ function clock.register(game)
   game.clock.amOrPm = 'AM'
   game.clock.addSpace = true
   game.clock.isDark = false
-  game.clock.preVal = 0
+  game.clock.preVal = -1
 
   game:on("DAY_START", clock.startDay)
   game:on('DAY_START', clock.resetClock)
@@ -37,6 +38,8 @@ function clock.resetClock(game, message)
 	game.clock.currentMin = START_MIN
 	game.clock.amOrPm = 'AM'
 	game.clock.addSpace = true
+	game.clock.isDark = false
+	game.clock.preVal = -1
 end
 
 function clock.updateClock(game, message)
@@ -84,11 +87,27 @@ end
 function clock.renderClock(game, message)
 	if game.clock.dayStarted then
 		love.graphics.push("all")
-		love.graphics.setColor(255,0,0,255)
+		-- love.graphics.setColor(255,0,0,255)
 
-		if not math.floor(game.clock.currentMin) == game.clock.preVal then
-			game.clock.changeColor()
-			game.clock.preVal = math.floor(game.clock.currentMin)
+		if game.clock.isDark then
+			love.graphics.setColor(26,26,26,255)
+		else 
+			love.graphics.setColor(255,0,0,255)
+		end
+
+
+
+		if game.clock.currentHour == END_HOUR - 1 and math.floor(game.clock.currentMin) == game.clock.preVal + FLASH_TIME then
+			if game.clock.isDark then
+				game.clock.isDark = false
+			else
+				game.clock.isDark = true
+			end
+		game.clock.preVal = math.floor(game.clock.currentMin)
+		end
+
+		if game.clock.currentHour == END_HOUR or game.clock.currentMin == END_MIN then
+			love.graphics.setColor(255,0,0,255)
 		end
 
 
@@ -142,15 +161,5 @@ end
 
 function clock.endDay(game, message)
 	game.clock.dayStarted = false
-end
-
-function clock.changeColor()
-	if game.clock.isDark then
-		love.graphics.setColor(255,0,0,255)
-		game.clock.isDark = false
-	else
-		love.graphics.setColor(26,26,26,255)
-		game.clock.isDark = true
-	end
 end
 return clock
