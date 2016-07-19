@@ -12,20 +12,22 @@ local CLAIM_HEIGHT  = 68
 local BOX_INBOX = {
   x       = 6 + 20,
   y       = 540 + 32 + 228,
-  width   = CLAIM_WIDTH,
-  height  = CLAIM_HEIGHT
+  width   = CLAIM_WIDTH - 20,
+  height  = CLAIM_HEIGHT - 32
 }
 local BOX_APPROVED = {
-  x       = 540 + 20,
-  y       = 540 + 32 + 122,
+  x       = 540,
+  y       = 540 + 122,
   width   = CLAIM_WIDTH,
-  height  = CLAIM_HEIGHT
+  height  = CLAIM_HEIGHT,
+  glow    = love.graphics.newImage("assets/graphics/greenGlow.png")
 }
 local BOX_DENIED = {
-  x       = 540 + 20,
-  y       = 540 + 32 + 382,
+  x       = 540,
+  y       = 540 + 382,
   width   = CLAIM_WIDTH,
-  height  = CLAIM_HEIGHT
+  height  = CLAIM_HEIGHT,
+  glow    = love.graphics.newImage("assets/graphics/redGlow.png")
 }
 
 local DESKTOP_VIEW = {
@@ -326,10 +328,10 @@ function desk.dropClaim(game, message)
 
   claim.dragPoint = nil
 
-  if desk.checkBoxCollision(claim, BOX_APPROVED, 30) then
+  if desk.checkBoxCollision(claim, BOX_APPROVED, 50) then
     game.desk.activeClaim = nil
     game:dispatch(CLAIM_APPROVED(claim))
-  elseif desk.checkBoxCollision(claim, BOX_DENIED, 30) then
+  elseif desk.checkBoxCollision(claim, BOX_DENIED, 50) then
     game.desk.activeClaim = nil
     game:dispatch(CLAIM_DENIED(claim))
   end
@@ -346,6 +348,12 @@ function desk.drawTable(game, message)
 
   local claim = game.desk.activeClaim
   if claim then
+    if desk.checkBoxCollision(claim, BOX_APPROVED, 50) then
+      love.graphics.draw(BOX_APPROVED.glow, BOX_APPROVED.x - 8, BOX_APPROVED.y - 8)
+    elseif desk.checkBoxCollision(claim, BOX_DENIED, 50) then
+      love.graphics.draw(BOX_DENIED.glow, BOX_DENIED.x - 8, BOX_DENIED.y - 8)
+    end
+
     love.graphics.draw(INVOICE_TEMPLATES[claim.invoice.dealer].smallImage, claim.x + claim.slideXOffset, claim.y)
     love.graphics.draw(CLAIM_REQUEST_IMAGES[game.desk.currentDay].small, claim.x, claim.y)
 
