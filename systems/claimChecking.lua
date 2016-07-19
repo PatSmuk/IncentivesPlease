@@ -2,7 +2,7 @@ local MAX_STRIKES = 3
 local SUCCESSFUL_ID_AMOUNT = 5
 local FAILED_ID_AMOUNT = 10
 local CC_FONT = love.graphics.newFont("assets/font/BebasNeue Bold.ttf", 28)
-local END_SCREEN_FONT = love.graphics.newFont("assets/font/BebasNeue Bold.ttf", 136)
+local END_SCREEN_FONT = love.graphics.newFont("assets/font/BebasNeue Bold.ttf", 130)
 local DAY_END_BG_PATH = "assets/graphics/backgroundDayEnd.png"
 local DAY_END_BG = love.graphics.newImage(DAY_END_BG_PATH)
 
@@ -120,6 +120,7 @@ end
 function drawSuccessfulId()
   successPath = "assets/graphics/correctIcon.png"
   moneyPath = "assets/graphics/moneyIcon.png"
+
 end
 
 function drawFailedId()
