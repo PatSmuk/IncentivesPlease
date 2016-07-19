@@ -349,8 +349,8 @@ function desk.drawTable(game, message)
     love.graphics.draw(INVOICE_TEMPLATES[claim.invoice.dealer].smallImage, claim.x + claim.slideXOffset, claim.y)
     love.graphics.draw(CLAIM_REQUEST_IMAGES[game.desk.currentDay].small, claim.x, claim.y)
 
-    local x = (claim.x - ZOOM_ZONE.x) * 5 + ZOOM_VIEW.x
-    local y = (claim.y - ZOOM_ZONE.y) * 5
+    local x = (claim.x - ZOOM_ZONE.x) * 2 + ZOOM_VIEW.x
+    local y = (claim.y - ZOOM_ZONE.y) * 3
     love.graphics.setScissor(ZOOM_VIEW.x, ZOOM_VIEW.y, ZOOM_VIEW.width, ZOOM_VIEW.height)
 
     love.graphics.push()
@@ -374,7 +374,7 @@ function desk.drawTable(game, message)
     end
     love.graphics.setColor(255, 255, 255)
     love.graphics.pop()
-    
+
     love.graphics.setScissor()
   end
 
