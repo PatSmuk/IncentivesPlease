@@ -45,6 +45,8 @@ function CC.startDay(game, message)
   game.claimChecking.strikes = 0
   game.claimChecking.claimsApproved = 0
   game.claimChecking.claimsDenied = 0
+  game.claimChecking.wrongId = 0
+  game.claimChecking.correctId = 0
   game.claimChecking.dayBalance = 0
 end
 
@@ -113,13 +115,33 @@ function CC.renderClaimCounters(game, message)
   approvedText = game.claimChecking.claimsApproved
   deniedText = game.claimChecking.claimsDenied
   moneyMadeText = game.claimChecking.totalBalance .. " JBucks"
+  strikeCounter = ""
+
+  if game.claimChecking.strikes == 1 then
+    strikeCounter = "X"
+  elseif game.claimChecking.strikes == 2 then
+    strikeCounter = "X  X"
+  elseif game.claimChecking.strikes >= 3 then
+    strikeCounter = "X  X  X"
+  end
 
   love.graphics.setColor(0, 148, 68)
   love.graphics.print(approvedText, APPROVED_X, APPROVED_Y)
   love.graphics.setColor(255, 0, 0)
   love.graphics.print(deniedText, DENIED_X, DENIED_Y)
   love.graphics.setColor(0, 0, 0)
-  love.graphics.print(moneyMadeText, 40, 50)
+  love.graphics.print(moneyMadeText, 40, 25)
+  drawStrikeBoxes()
+  love.graphics.setColor(255, 0, 0)
+  love.graphics.print(strikeCounter, 41, 53)
+
+end
+
+function drawStrikeBoxes ()
+  love.graphics.setColor(255, 255, 255)
+  love.graphics.rectangle("fill", 40, 50, 15, 30)
+  love.graphics.rectangle("fill", 60, 50, 15, 30)
+  love.graphics.rectangle("fill", 80, 50, 15, 30)
 end
 
 function CC.renderDayEnd(game, message)
