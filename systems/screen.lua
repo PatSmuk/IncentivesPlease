@@ -86,17 +86,13 @@ local backgrounds = {
       imgPath = "assets/graphics/background.png",
       x = 0,
       y = 0,
-      orientation = 0,
-      widthScale = 1,
-      heightScale = 1
+      orientation = 0
     },
     logo = {
       imgPath = "assets/graphics/logo.png",
       x = 758,
       y = 200,
-      orientation = 0,
-      widthScale = 0.2,
-      heightScale = 0.2
+      orientation = 0
     }
   },
   game = {
@@ -104,33 +100,25 @@ local backgrounds = {
       imgPath = "assets/graphics/desk-view.png",
       x = 0,
       y = 0,
-      orientation = 0,
-      widthScale = 1,
-      heightScale = 1
+      orientation = 0
     },
     invoice = {
       imgPath = "assets/graphics/InvoiceView.png",
       x = 0,
       y = 541,
-      orientation = 0,
-      widthScale = 1,
-      heightScale = 1
+      orientation = 0
     },
     deskMat = {
       imgPath = "assets/graphics/matSm.png",
       x = 192,
       y = 702,
-      orientation = 0,
-      widthScale = 0.6,
-      heightScale = 0.6,
+      orientation = 0
     },
     zoomed = {
       imgPath = "assets/graphics/matLg.png",
       x = 641,
       y = 0,
-      orientation = 0,
-      widthScale = 1,
-      heightScale = 1
+      orientation = 0
     }
   },
   levelComplete = {},
@@ -181,24 +169,14 @@ end
 
 function screen.renderBG(game, message)
   for i, backgroundKey in ipairs(backgroundsOrder[game.screen.currentScreen]) do
-    -- love.graphics.push()
-    -- love.graphics.translate(background.x + background.width/2, background.y + background.height/2)
-    -- love.graphics.rotate(background.orientation)
-    -- love.graphics.scale(background.widthScale, background.heightScale)
-    -- love.graphics.draw(
-    --   background.img, -background.width, -background.height
-    -- )
-    -- love.graphics.pop()
     local background = backgrounds[game.screen.currentScreen][backgroundKey]
-    print(background.imgPath)
+    love.graphics.push()
+    love.graphics.translate(background.x + background.width/2, background.y + background.height/2)
+    love.graphics.rotate(background.orientation)
     love.graphics.draw(
-      background.img,
-      background.x,
-      background.y,
-      background.orientation,
-      background.widthScale,
-      background.heightScale
+      background.img, -background.width/2, -background.height/2
     )
+    love.graphics.pop()
   end
 end
 
