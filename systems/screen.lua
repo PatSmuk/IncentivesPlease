@@ -36,7 +36,7 @@ local buttons = {
       widthScale = 0.1,
       heightScale = 0.1,
       onClick = function (game)
-        game.screen.currentScreen "game"
+        game.screen.currentScreen = "game"
         game.screen.currentDay = game.screen.currentDay + 1
         game:dispatch(messages.DAY_START(game.screen.currentDay))
       end
