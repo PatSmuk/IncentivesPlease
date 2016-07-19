@@ -88,6 +88,18 @@ local backgrounds = {
       x = 758,
       y = 200,
       orientation = 0
+    },
+    group1 = {
+      imgPath = "assets/graphics/cartoonsLeft.png",
+      x = -1920,
+      y = 0,
+      orientation = 0
+    },
+    group2 = {
+      imgPath = "assets/graphics/cartoonsRight.png",
+      x = 3840,
+      y = 0,
+      orientation = 0
     }
   },
   game = {
@@ -121,7 +133,7 @@ local backgrounds = {
 }
 
 local backgroundsOrder = {
-  menu = {"bg", "logo"},
+  menu = {"bg", "logo", "group1", "group2"},
   game = {"desk", "invoice", "zoomed", "deskMat"},
   levelComplete = {},
   gameComplete = {}
@@ -142,6 +154,16 @@ function screen.update(game, message)
   if game.screen.button.animation and
      game.screen.button.animation(message.dt) then
      game.screen.button.animation = nil
+  end
+
+  if game.screen.group1.animation and
+     game.screen.group1.animation(message.dt) then
+     game.screen.group1.animation = nil
+  end
+
+  if game.screen.group2.animation and
+     game.screen.group2.animation(message.dt) then
+     game.screen.group2.animation = nil
   end
 end
 
@@ -229,7 +251,13 @@ function screen.register(game)
     logo = {
       endValue = 0.1
     },
-    button = {}
+    button = {},
+    group1 = {
+      endValue = 0
+    },
+    group2 = {
+      endValue = 0
+    }
   }
 
   for k, buttonGroup in pairs(buttons) do
@@ -257,6 +285,20 @@ function screen.register(game)
     backgrounds.menu.logo.orientation, game.screen.logo.endValue, 0.5, 0.1, 0.0000001,
     function (orientation)
       backgrounds.menu.logo.orientation = orientation
+    end
+  )
+
+  game.screen.group1.animation = createAnimator(
+    backgrounds.menu.group1.x, game.screen.group1.endValue, 50, 25, 0.1,
+    function (x)
+      backgrounds.menu.group1.x = x
+    end
+  )
+
+  game.screen.group2.animation = createAnimator(
+    backgrounds.menu.group2.x, game.screen.group2.endValue, 50, 25, 0.1,
+    function (x)
+      backgrounds.menu.group2.x = x
     end
   )
 
