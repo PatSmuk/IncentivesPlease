@@ -1,5 +1,5 @@
 local MAX_STRIKES = 3
-local SUCCESSFUL_ID_AMMOUNT = 5
+local SUCCESSFUL_ID_AMOUNT = 5
 local FAILED_ID_AMOUNT = 10
 local CC_FONT = love.graphics.newFont("assets/font/BebasNeue Bold.ttf", 28)
 
@@ -59,11 +59,15 @@ function CC.incrementClaimsApproved(game, message)
   local approvedClaim = message.claim
   if approvedClaim.valid then
     print("Successfully identified a claim")
+    sfxGameStart = love.audio.newSource("assets/sfx/claim_correct.wav","static")
+    sfxGameStart:play()
     game.claimChecking.claimsApproved = game.claimChecking.claimsApproved + 1
-    game.claimChecking.dayBalance = game.claimChecking.dayBalance + SUCCESSFUL_ID_AMMOUNT
-    game.claimChecking.totalBalance = game.claimChecking.totalBalance + SUCCESSFUL_ID_AMMOUNT
+    game.claimChecking.dayBalance = game.claimChecking.dayBalance + SUCCESSFUL_ID_AMOUNT
+    game.claimChecking.totalBalance = game.claimChecking.totalBalance + SUCCESSFUL_ID_AMOUNT
   else
     print("You claim identification is bad, and you should feel bad")
+    sfxGameStart = love.audio.newSource("assets/sfx/claim_incorrect.wav","static")
+    sfxGameStart:play()
     if game.claimChecking.claimsDenied < MAX_STRIKES then
       game.claimChecking.strikes = game.claimChecking.strikes + 1
     else
@@ -77,16 +81,20 @@ function CC.incrementClaimsDenied(game, message)
   local deniedClaim = message.claim
   if not deniedClaim.valid then
     print("Successfully identified a claim")
+    sfxGameStart = love.audio.newSource("assets/sfx/claim_correct.wav","static")
+    sfxGameStart:play()
     game.claimChecking.claimsDenied = game.claimChecking.claimsDenied + 1
-    game.claimChecking.dayBalance = game.claimChecking.dayBalance + SUCCESSFUL_ID_AMMOUNT
-    game.claimChecking.totalBalance = game.claimChecking.totalBalance + SUCCESSFUL_ID_AMMOUNT
+    game.claimChecking.dayBalance = game.claimChecking.dayBalance + SUCCESSFUL_ID_AMOUNT
+    game.claimChecking.totalBalance = game.claimChecking.totalBalance + SUCCESSFUL_ID_AMOUNT
   else
     print("You claim identification is bad, and you should feel bad")
+    sfxGameStart = love.audio.newSource("assets/sfx/claim_incorrect.wav","static")
+    sfxGameStart:play()
     if game.claimChecking.strikes < MAX_STRIKES then
       game.claimChecking.strikes = game.claimChecking.strikes + 1
     else
-      game.claimChecking.dayBalance = game.claimChecking.dayBalance - FAILED_ID_AMMOUNT
-      game.claimChecking.totalBalance = game.claimChecking.totalBalance - FAILED_ID_AMMOUNT
+      game.claimChecking.dayBalance = game.claimChecking.dayBalance - FAILED_ID_AMOUNT
+      game.claimChecking.totalBalance = game.claimChecking.totalBalance - FAILED_ID_AMOUNT
     end
   end
 end
@@ -98,11 +106,14 @@ end
 function CC.renderClaimCounters(game, message)
   approvedText = game.claimChecking.claimsApproved
   deniedText = game.claimChecking.claimsDenied
+  moneyMadeText = "Bank Account: " .. game.claimChecking.totalBalance .. " JBucks"
 
   love.graphics.setColor(0, 148, 68)
   love.graphics.print(approvedText, APPROVED_X, APPROVED_Y)
   love.graphics.setColor(255, 0, 0)
   love.graphics.print(deniedText, DENIED_X, DENIED_Y)
+  love.graphics.setColor(0, 0, 0)
+  love.graphics.print(moneyMadeText, 40, 50)
 end
 
 function CC.renderDayEnd(game, message)
