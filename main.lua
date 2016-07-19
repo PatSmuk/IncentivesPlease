@@ -63,10 +63,8 @@ end
 function love.update(dt)
   game:dispatch(UPDATE(dt))
 
-  if debugAnimation then
-    if debugAnimation(dt) then
-      debugAnimation = nil
-    end
+  if debugAnimation and debugAnimation(dt) then
+    debugAnimation = nil
   end
 end
 
