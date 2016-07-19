@@ -48,6 +48,39 @@ local ZOOM_VIEW = {
   height  = 1080,
   image   = love.graphics.newImage("assets/graphics/matLg.png")
 }
+local INVOICE_FIELDS = {"associateName", "date", "modelSerial", "quantity", "price"}
+local INVOICE_FIELD_DIMENSIONS = {
+  associateName = {
+    x = 12,
+    y = 119,
+    width = 190,
+    height = 37
+  },
+  date = {
+    x = 244,
+    y = 119,
+    width = 190,
+    height = 37
+  },
+  modelSerial = {
+    x = 22,
+    y = 225,
+    width = 425,
+    height = 68
+  },
+  quantity = {
+    x = 22,
+    y = 352,
+    width = 425,
+    height = 68
+  },
+  price = {
+    x = 22,
+    y = 480,
+    width = 425,
+    height = 68
+  }
+}
 
 local RANDOM_NAMES = {
   "Keli Clermont",
@@ -108,6 +141,12 @@ local INVOICE_TEMPLATES = {
     dealerName = "Munster & Sons"
   }
 }
+local CLAIM_REQUEST_IMAGE_LARGE = love.graphics.newImage("assets/graphics/claimReferenceLg.png")
+local CLAIM_REQUEST_IMAGE_SMALL = love.graphics.newImage("assets/graphics/claimReferenceSm.png")
+local INVOICE_FONT = love.graphics.newFont("assets/font/Raleway-Medium.ttf", 24)
+local PICKUP_CLAIM_SOUND = love.audio.newSource("assets/sfx/pickup_claim.wav","static")
+
+local DAYS_PER_MONTH = {30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30}
 
 function desk.register(game)
   print("Registering table system")
@@ -153,37 +192,79 @@ function desk.pickUpClaim(game, message)
   else
     -- Otherwise check if the player is clicking on the inbox
     if desk.checkPointCollision(x, y, BOX_INBOX) then
-      local date = math.floor(math.random() * 3) + 2013
+      local year = math.floor(math.random() * 3) + 2013
+      local month = math.ceil(math.random() * 12)
+      local day = math.ceil(math.random() * DAYS_PER_MONTH[month])
+      local date = string.format("%04d-%02d-%02d", year, month, day)
       local associateName = RANDOM_NAMES[math.ceil(math.random() * #RANDOM_NAMES)]
       local dealer = math.ceil(math.random() * #INVOICE_TEMPLATES)
+      local modelSerial = math.ceil(math.random() * 1000000).."-"..math.ceil(math.random() * 1000000)
+      local quantity = math.ceil(math.random() * 5)
+      local price = math.ceil(math.random() * 100000)
+      price = string.format("$%d.%02d", math.floor(price / 100), price % 100)
+
       local claim
       claim = {
         x = BOX_INBOX.x,
         y = BOX_INBOX.y,
         width = CLAIM_WIDTH,
         height = CLAIM_HEIGHT,
+
         dragPoint = { x = x - BOX_INBOX.x, y = y - BOX_INBOX.y },
         xAnimator = createAnimator(BOX_INBOX.x, BOX_INBOX.x, 300, 30, 0.1, function (x) claim.x = x end),
         yAnimator = createAnimator(BOX_INBOX.y, BOX_INBOX.y, 300, 30, 0.1, function (y) claim.y = y end),
         targetX = BOX_INBOX.x,
         targetY = BOX_INBOX.y,
-        valid = math.random() * 2 < 1,
+        slideXOffset = 4,
+        slideAnimator = createAnimator(4, 4, 500, 30, 0.1, function (x) claim.slideXOffset = x end),
+        inSlideZone = false,
+
+        valid = math.random() * 5 >= 1,
         request = {
           date = date,
           associateName = associateName,
-          dealer = dealer
+          dealer = dealer,
+          modelSerial = modelSerial,
+          quantity = quantity,
+          price = price
         },
         invoice = {
           date = date,
           associateName = associateName,
-          dealer = dealer
+          dealer = dealer,
+          modelSerial = modelSerial,
+          quantity = quantity,
+          price = price
         }
       }
       game.desk.activeClaim = claim
 
-      sfxPickupClaim = love.audio.newSource("assets/sfx/pickup_claim.wav","static")
-      sfxPickupClaim:play()
+      PICKUP_CLAIM_SOUND:play()
 
+      if not claim.valid then
+        local badField = INVOICE_FIELDS[math.ceil(math.random() * game.desk.currentDay)]
+        local newValue
+        repeat
+          if badField == "date" then
+            local year = math.floor(math.random() * 3) + 2013
+            local month = math.ceil(math.random() * 12)
+            local day = math.ceil(math.random() * DAYS_PER_MONTH[month])
+            newValue = string.format("%04d-%02d-%02d", year, month, day)
+          elseif badField == "associateName" then
+            newValue = RANDOM_NAMES[math.ceil(math.random() * #RANDOM_NAMES)]
+          elseif badField == "dealer" then
+            newValue = math.ceil(math.random() * #INVOICE_TEMPLATES)
+          elseif badField == "modelSerial" then
+            newValue = math.ceil(math.random() * 1000000).."-"..math.ceil(math.random() * 1000000)
+          elseif badField == "quantity" then
+            newValue = math.ceil(math.random() * 5)
+          elseif badField == "price" then
+            local price = math.ceil(math.random() * 100000)
+            newValue = string.format("$%d.%02d", math.floor(price / 100), price % 100)
+          end
+          claim.invoice[badField] = newValue
+        until claim.request[badField] ~= claim.invoice[badField]
+      end
     end
   end
 end
@@ -236,6 +317,7 @@ end
 
 function desk.drawTable(game, message)
   love.graphics.push("all")
+  love.graphics.setFont(INVOICE_FONT)
 
   if not game.desk.currentDay then
     love.graphics.pop()
@@ -244,12 +326,30 @@ function desk.drawTable(game, message)
 
   local claim = game.desk.activeClaim
   if claim then
-    love.graphics.draw(INVOICE_TEMPLATES[claim.invoice.dealer].smallImage, claim.x, claim.y)
+    love.graphics.draw(INVOICE_TEMPLATES[claim.invoice.dealer].smallImage, claim.x + claim.slideXOffset, claim.y)
+    love.graphics.draw(CLAIM_REQUEST_IMAGE_SMALL, claim.x, claim.y)
 
     local x = (claim.x - ZOOM_ZONE.x) * 5 + ZOOM_VIEW.x
     local y = (claim.y - ZOOM_ZONE.y) * 5
     love.graphics.setScissor(ZOOM_VIEW.x, ZOOM_VIEW.y, ZOOM_VIEW.width, ZOOM_VIEW.height)
-    love.graphics.draw(INVOICE_TEMPLATES[claim.invoice.dealer].largeImage, x, y)
+    love.graphics.push()
+    love.graphics.translate(x + claim.slideXOffset * 9, y)
+    love.graphics.draw(INVOICE_TEMPLATES[claim.invoice.dealer].largeImage, 0, 0)
+    love.graphics.setColor(40, 40, 40)
+    for field, dimensions in pairs(INVOICE_FIELD_DIMENSIONS) do
+      love.graphics.print(tostring(claim.invoice[field]), dimensions.x, dimensions.y)
+    end
+    love.graphics.setColor(255, 255, 255)
+    love.graphics.pop()
+    love.graphics.push()
+    love.graphics.translate(x, y)
+    love.graphics.draw(CLAIM_REQUEST_IMAGE_LARGE, 0, 0)
+    love.graphics.setColor(40, 40, 40)
+    for field, dimensions in pairs(INVOICE_FIELD_DIMENSIONS) do
+      love.graphics.print(tostring(claim.request[field]), dimensions.x, dimensions.y)
+    end
+    love.graphics.setColor(255, 255, 255)
+    love.graphics.pop()
     love.graphics.setScissor()
   end
 
@@ -264,6 +364,22 @@ function desk.updateAnimations(game, message)
   local claim = game.desk.activeClaim
   claim.xAnimator(message.dt, claim.targetX)
   claim.yAnimator(message.dt, claim.targetY)
+
+  if desk.checkBoxCollision(claim, ZOOM_ZONE, 200) then
+    if not claim.inSlideZone then
+      claim.inSlideZone = true
+      claim.slideAnimator(message.dt, CLAIM_WIDTH + 5)
+    else
+      claim.slideAnimator(message.dt)
+    end
+  else
+    if claim.inSlideZone then
+      claim.inSlideZone = false
+      claim.slideAnimator(message.dt, 4)
+    else
+      claim.slideAnimator(message.dt)
+    end
+  end
 end
 
 function desk.checkBoxCollision(box1, box2, error)
