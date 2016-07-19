@@ -9,22 +9,31 @@ local function createAnimator(startValue, endValue, stiffness, damping, precisio
       local a = Fspring + Fdamper
       local newV = v + a * dt
       local newX = x + newV * dt
+      local newEndValue
+
       if newV < precision and math.abs(x - newX) < precision then
+        x = endValue
+        v = 0
         callback(endValue)
-        break
+        dt, newEndValue = coroutine.yield(true)
       else
         x = newX
         v = newV
         callback(newX)
-        dt = coroutine.yield()
+        dt, newEndValue = coroutine.yield(false)
+      end
+
+      print("newEndValue: "..tostring(newEndValue))
+      if newEndValue then
+        endValue = newEndValue
       end
     end
   end)
 
-  return function (dt)
-    local ok, error = coroutine.resume(worker, dt)
-    assert(ok, error)
-    return coroutine.status(worker) == "dead"
+  return function (dt, newEndValue)
+    local ok, errorOrDone = coroutine.resume(worker, dt, newEndValue)
+    assert(ok, errorOrDone)
+    return errorOrDone
   end
 end
 

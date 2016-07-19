@@ -1,28 +1,29 @@
 local desk = {}
 
+local createAnimator = require("../animation")
 local messages = require("../messages")
 
 local CLAIM_APPROVED  = messages.CLAIM_APPROVED
 local CLAIM_DENIED    = messages.CLAIM_DENIED
 
-local CLAIM_WIDTH   = 90
-local CLAIM_HEIGHT  = 122
+local CLAIM_WIDTH   = 50
+local CLAIM_HEIGHT  = 68
 
 local BOX_INBOX = {
-  x       = 6,
-  y       = 540 + 228,
+  x       = 6 + 20,
+  y       = 540 + 32 + 228,
   width   = CLAIM_WIDTH,
   height  = CLAIM_HEIGHT
 }
 local BOX_APPROVED = {
-  x       = 540,
-  y       = 540 + 122,
+  x       = 540 + 20,
+  y       = 540 + 32 + 122,
   width   = CLAIM_WIDTH,
   height  = CLAIM_HEIGHT
 }
 local BOX_DENIED = {
-  x       = 540,
-  y       = 540 + 382,
+  x       = 540 + 20,
+  y       = 540 + 32 + 382,
   width   = CLAIM_WIDTH,
   height  = CLAIM_HEIGHT
 }
@@ -37,13 +38,75 @@ local ZOOM_ZONE = {
   x       = 192,
   y       = 702,
   width   = 256,
-  height  = 216
+  height  = 216,
+  image   = love.graphics.newImage("assets/graphics/matSm.png")
 }
 local ZOOM_VIEW = {
   x       = 640,
   y       = 0,
   width   = 1280,
-  height  = 1080
+  height  = 1080,
+  image   = love.graphics.newImage("assets/graphics/matLg.png")
+}
+
+local RANDOM_NAMES = {
+  "Keli Clermont",
+  "Colin Merlo",
+  "Chantal Rousey",
+  "Briana Comacho",
+  "Pricilla Mares",
+  "Clement Chabolla",
+  "Franklyn Linton",
+  "Tammara Delia",
+  "Era Recore",
+  "Georgette Saraiva",
+  "Mark Fry",
+  "Meghan Dubois",
+  "Eustolia Turner",
+  "Wilma Trosper",
+  "Holly Leonetti",
+  "Noelle Korte",
+  "Kimberli Breuer",
+  "Tamie Langenfeld",
+  "Shira Lawless",
+  "Ghislaine Yard",
+  "Dorothea Cobbley",
+  "Katy Ahumada",
+  "Hollie Woodrow",
+  "Claud Zambrana",
+  "Tyron Goodenough",
+  "Freda Bradberry",
+  "Mikaela Dickens",
+  "Bok Amen",
+  "Janelle Edlin",
+  "Raymon Brzezinski"
+}
+local INVOICE_TEMPLATES = {
+  {
+    largeImage = love.graphics.newImage("assets/graphics/invoiceA.png"),
+    smallImage = love.graphics.newImage("assets/graphics/invoiceAsm.png"),
+    dealerName = "Thumbs-Up Appliances"
+  },
+  {
+    largeImage = love.graphics.newImage("assets/graphics/invoiceB.png"),
+    smallImage = love.graphics.newImage("assets/graphics/invoiceBsm.png"),
+    dealerName = "Loch Ness Inc."
+  },
+  {
+    largeImage = love.graphics.newImage("assets/graphics/invoiceC.png"),
+    smallImage = love.graphics.newImage("assets/graphics/invoiceCsm.png"),
+    dealerName = "Zombies & Co."
+  },
+  {
+    largeImage = love.graphics.newImage("assets/graphics/invoiceD.png"),
+    smallImage = love.graphics.newImage("assets/graphics/invoiceDsm.png"),
+    dealerName = "Al Paca's Tire Hut"
+  },
+  {
+    largeImage = love.graphics.newImage("assets/graphics/invoiceE.png"),
+    smallImage = love.graphics.newImage("assets/graphics/invoiceEsm.png"),
+    dealerName = "Munster & Sons"
+  }
 }
 
 function desk.register(game)
@@ -60,6 +123,7 @@ function desk.register(game)
   game:on("MOUSE_MOVE", desk.moveClaim)
   game:on("MOUSE_RELEASE", desk.dropClaim)
   game:on("RENDER_FG", desk.drawTable)
+  game:on("UPDATE", desk.updateAnimations)
 end
 
 function desk.startDay(game, message)
@@ -89,14 +153,33 @@ function desk.pickUpClaim(game, message)
   else
     -- Otherwise check if the player is clicking on the inbox
     if desk.checkPointCollision(x, y, BOX_INBOX) then
-      game.desk.activeClaim = {
+      local date = math.floor(math.random() * 3) + 2013
+      local associateName = RANDOM_NAMES[math.ceil(math.random() * #RANDOM_NAMES)]
+      local dealer = math.ceil(math.random() * #INVOICE_TEMPLATES)
+      local claim
+      claim = {
         x = BOX_INBOX.x,
         y = BOX_INBOX.y,
         width = CLAIM_WIDTH,
         height = CLAIM_HEIGHT,
         dragPoint = { x = x - BOX_INBOX.x, y = y - BOX_INBOX.y },
-        valid = math.random() * 2 < 1
+        xAnimator = createAnimator(BOX_INBOX.x, BOX_INBOX.x, 300, 30, function (x) claim.x = x end),
+        yAnimator = createAnimator(BOX_INBOX.y, BOX_INBOX.y, 300, 30, function (y) claim.y = y end),
+        targetX = BOX_INBOX.x,
+        targetY = BOX_INBOX.y,
+        valid = math.random() * 2 < 1,
+        request = {
+          date = date,
+          associateName = associateName,
+          dealer = dealer
+        },
+        invoice = {
+          date = date,
+          associateName = associateName,
+          dealer = dealer
+        }
       }
+      game.desk.activeClaim = claim
     end
   end
 end
@@ -110,23 +193,21 @@ function desk.moveClaim(game, message)
   end
 
   -- Update the claim's position
-  local dx = x - claim.x - claim.dragPoint.x
-  local dy = y - claim.y - claim.dragPoint.y
-  claim.x = claim.x + dx
-  claim.y = claim.y + dy
+  claim.targetX = x - claim.dragPoint.x
+  claim.targetY = y - claim.dragPoint.y
 
   -- Constrain the claim's X coordinate
-  if claim.x < DESKTOP_VIEW.x then
-    claim.x = DESKTOP_VIEW.x
-  elseif claim.x + CLAIM_WIDTH > DESKTOP_VIEW.x + DESKTOP_VIEW.width then
-    claim.x = DESKTOP_VIEW.x + DESKTOP_VIEW.width - CLAIM_WIDTH
+  if claim.targetX < DESKTOP_VIEW.x then
+    claim.targetX = DESKTOP_VIEW.x
+  elseif claim.targetX + CLAIM_WIDTH > DESKTOP_VIEW.x + DESKTOP_VIEW.width then
+    claim.targetX = DESKTOP_VIEW.x + DESKTOP_VIEW.width - CLAIM_WIDTH
   end
 
   -- Constrain the claim's Y coordinate
-  if claim.y < DESKTOP_VIEW.y then
-    claim.y = DESKTOP_VIEW.y
-  elseif claim.y + CLAIM_HEIGHT > DESKTOP_VIEW.y + DESKTOP_VIEW.height then
-    claim.y = DESKTOP_VIEW.y + DESKTOP_VIEW.height - CLAIM_HEIGHT
+  if claim.targetY < DESKTOP_VIEW.y then
+    claim.targetY = DESKTOP_VIEW.y
+  elseif claim.targetY + CLAIM_HEIGHT > DESKTOP_VIEW.y + DESKTOP_VIEW.height then
+    claim.targetY = DESKTOP_VIEW.y + DESKTOP_VIEW.height - CLAIM_HEIGHT
   end
 end
 
@@ -159,28 +240,26 @@ function desk.drawTable(game, message)
 
   local claim = game.desk.activeClaim
   if claim then
-    if claim.valid then
-      love.graphics.setColor(20, 255, 40)
-    else
-      love.graphics.setColor(255, 40, 20)
-    end
-
-    love.graphics.rectangle("fill", claim.x, claim.y, CLAIM_WIDTH, CLAIM_HEIGHT)
+    love.graphics.draw(INVOICE_TEMPLATES[claim.invoice.dealer].smallImage, claim.x, claim.y)
 
     local x = (claim.x - ZOOM_ZONE.x) * 5 + ZOOM_VIEW.x
     local y = (claim.y - ZOOM_ZONE.y) * 5
-    local width = CLAIM_WIDTH * 5
-    local height = CLAIM_HEIGHT * 5
-    if x < ZOOM_VIEW.x then
-      width = width - (ZOOM_VIEW.x - x)
-      x = ZOOM_VIEW.x
-    end
-    if width > 0 then
-      love.graphics.rectangle("fill", math.max(x, ZOOM_VIEW.x), y, width, height)
-    end
+    love.graphics.setScissor(ZOOM_VIEW.x, ZOOM_VIEW.y, ZOOM_VIEW.width, ZOOM_VIEW.height)
+    love.graphics.draw(INVOICE_TEMPLATES[claim.invoice.dealer].largeImage, x, y)
+    love.graphics.setScissor()
   end
 
   love.graphics.pop()
+end
+
+function desk.updateAnimations(game, message)
+  if not game.desk.currentDay or not game.desk.activeClaim then
+    return
+  end
+
+  local claim = game.desk.activeClaim
+  claim.xAnimator(message.dt, claim.targetX)
+  claim.yAnimator(message.dt, claim.targetY)
 end
 
 function desk.checkBoxCollision(box1, box2, error)
