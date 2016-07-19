@@ -47,6 +47,11 @@ function love.mousereleased(x, y, button)
 end
 
 function love.keypressed(key)
+
+  if key == "q" then
+    love.event.quit(0)
+  end
+
   if key ~= "d" then
     return
   end
