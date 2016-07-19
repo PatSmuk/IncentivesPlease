@@ -10,23 +10,23 @@ local CLAIM_WIDTH   = 50
 local CLAIM_HEIGHT  = 68
 
 local BOX_INBOX = {
-  x       = 6 + 20,
-  y       = 540 + 32 + 228,
-  width   = CLAIM_WIDTH - 20,
-  height  = CLAIM_HEIGHT - 32
+  x       = 6,
+  y       = 540 + 228,
+  width   = 90,
+  height  = 120
 }
 local BOX_APPROVED = {
   x       = 540,
   y       = 540 + 122,
-  width   = CLAIM_WIDTH,
-  height  = CLAIM_HEIGHT,
+  width   = 90,
+  height  = 120,
   glow    = love.graphics.newImage("assets/graphics/greenGlow.png")
 }
 local BOX_DENIED = {
   x       = 540,
   y       = 540 + 382,
-  width   = CLAIM_WIDTH,
-  height  = CLAIM_HEIGHT,
+  width   = 90,
+  height  = 120,
   glow    = love.graphics.newImage("assets/graphics/redGlow.png")
 }
 
@@ -219,6 +219,14 @@ function desk.pickUpClaim(game, message)
   else
     -- Otherwise check if the player is clicking on the inbox
     if desk.checkPointCollision(x, y, BOX_INBOX) then
+      local claimX = BOX_INBOX.x
+      if x > BOX_INBOX.x + CLAIM_WIDTH then
+        claimX = x - CLAIM_WIDTH + 10
+      end
+      local claimY = BOX_INBOX.y
+      if y > BOX_INBOX.y + CLAIM_HEIGHT then
+        claimY = y - CLAIM_HEIGHT + 10
+      end
       local year = math.floor(math.random() * 3) + 2013
       local month = math.ceil(math.random() * 12)
       local day = math.ceil(math.random() * DAYS_PER_MONTH[month])
@@ -232,16 +240,16 @@ function desk.pickUpClaim(game, message)
 
       local claim
       claim = {
-        x = BOX_INBOX.x,
-        y = BOX_INBOX.y,
+        x = claimX,
+        y = claimY,
         width = CLAIM_WIDTH,
         height = CLAIM_HEIGHT,
 
-        dragPoint = { x = x - BOX_INBOX.x, y = y - BOX_INBOX.y },
-        xAnimator = createAnimator(BOX_INBOX.x, BOX_INBOX.x, 300, 30, 0.1, function (x) claim.x = x end),
-        yAnimator = createAnimator(BOX_INBOX.y, BOX_INBOX.y, 300, 30, 0.1, function (y) claim.y = y end),
-        targetX = BOX_INBOX.x,
-        targetY = BOX_INBOX.y,
+        dragPoint = { x = x - claimX, y = y - claimY },
+        xAnimator = createAnimator(claimX, claimX, 300, 30, 0.1, function (x) claim.x = x end),
+        yAnimator = createAnimator(claimY, claimY, 300, 30, 0.1, function (y) claim.y = y end),
+        targetX = claimX,
+        targetY = claimY,
         slideXOffset = 4,
         slideAnimator = createAnimator(4, 4, 500, 30, 0.1, function (x) claim.slideXOffset = x end),
         inSlideZone = false,
