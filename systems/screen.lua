@@ -242,7 +242,7 @@ function screen.register(game)
   sfxGameStart:play()
 
   game.screen.logo.animation = createAnimator(
-    backgrounds.menu.logo.orientation, game.screen.logo.endValue, 0.1, 0.05, 0.0000001,
+    backgrounds.menu.logo.orientation, game.screen.logo.endValue, 0.5, 0.1, 0.0000001,
     function (orientation)
       backgrounds.menu.logo.orientation = orientation
     end
