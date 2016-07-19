@@ -7,7 +7,8 @@ local START_MIN = 0
 local END_HOUR = 5
 local END_MIN = 59
 
-local font = love.graphics.newFont("assets/font/DS-DIGI.ttf", 40)
+local font = love.graphics.newFont("assets/font/DS-DIGI.ttf", 60)
+local amFont = love.graphics.newFont("assets/font/DS-DIGI.ttf", 17)
 
 function clock.register(game)
   print("Registering clock system")
@@ -17,6 +18,7 @@ function clock.register(game)
   game.clock.clockRunning = true
   game.clock.dayStarted = false
   game.clock.amOrPm = 'AM';
+  game.clock.addSpace = true;
 
   game:on("DAY_START", clock.startDay)
   game:on('DAY_START', clock.resetClock)
@@ -28,7 +30,8 @@ end
 function clock.resetClock(game, message)
 	game.clock.currentHour = START_HOUR
 	game.clock.currentMin = START_MIN
-	game.clock.amOrPm = 'AM';
+	game.clock.amOrPm = 'AM'
+	game.clock.addSpace = true
 end
 
 function clock.updateClock(game, message)
@@ -36,7 +39,7 @@ function clock.updateClock(game, message)
 		return
 	end
 
-	game.clock.currentMin = game.clock.currentMin + (message.dt * 3)
+	game.clock.currentMin = game.clock.currentMin + (message.dt * 15)
 
 	if game.clock.currentMin >= END_MIN then
 		game.clock.currentHour = game.clock.currentHour + 1
@@ -49,7 +52,12 @@ function clock.updateClock(game, message)
 
 	if game.clock.currentHour > 12 then
 		game.clock.currentHour = 1
+		game.clock.addSpace = true
 	end
+
+	if game.clock.currentHour > 9 and game.clock.currentHour <= 12 then
+		game.clock.addSpace = false
+	end 
 
 	if game.clock.currentHour == END_HOUR then
 		game:dispatch(DAY_END())
@@ -65,7 +73,17 @@ function clock.renderClock(game, message)
 		love.graphics.push("all")
   		love.graphics.setColor(255,0,0,255)
   		love.graphics.setFont(font)
-		love.graphics.print(string.format("%.0f", game.clock.currentHour) .. ":" .. string.format("%02.0f", game.clock.currentMin) .. " " .. game.clock.amOrPm, 410, 120)
+		if game.clock.addSpace and game.clock.currentHour == 1 then
+			love.graphics.print(string.format("%.0f", game.clock.currentHour) .. ":" .. string.format("%02.0f", game.clock.currentMin), 435, 110)
+		elseif game.clock.addSpace then 
+			love.graphics.print(string.format("%.0f", game.clock.currentHour) .. ":" .. string.format("%02.0f", game.clock.currentMin), 422, 110)
+		elseif game.clock.currentHour == 11 then 
+			love.graphics.print(string.format("%.0f", game.clock.currentHour) .. ":" .. string.format("%02.0f", game.clock.currentMin), 420, 110)
+		else
+			love.graphics.print(string.format("%.0f", game.clock.currentHour) .. ":" .. string.format("%02.0f", game.clock.currentMin), 415, 110)
+		end
+		love.graphics.setFont(amFont)
+		love.graphics.print(game.clock.amOrPm, 520, 103)
 		love.graphics.pop()
 	end
 end
