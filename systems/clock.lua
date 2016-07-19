@@ -15,7 +15,7 @@ function clock.register(game)
   game.clock = {}
   game.clock.currentHour = START_HOUR
   game.clock.currentMin = START_MIN
-  game.clock.clockRunning = true
+  game.clock.clockRunning = false
   game.clock.dayStarted = false
   game.clock.amOrPm = 'AM';
   game.clock.addSpace = true;
@@ -61,7 +61,7 @@ function clock.updateClock(game, message)
 	end 
 
 	if game.clock.currentHour == END_HOUR then
-		game:dispatch(DAY_END())
+		game:dispatch(DAY_END(game.clock.day))
 		game.clock.clockRunning = false
 		return
 	end
@@ -92,6 +92,7 @@ end
 function clock.startDay(game, message)
 	game.clock.dayStarted = true
 	game.clock.clockRunning = true
+	game.clock.day = message.day
 end
 
 function clock.endDay(game, message)
