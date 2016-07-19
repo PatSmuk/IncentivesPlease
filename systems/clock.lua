@@ -19,8 +19,10 @@ function clock.register(game)
   game.clock.currentMin = START_MIN
   game.clock.clockRunning = false
   game.clock.dayStarted = false
-  game.clock.amOrPm = 'AM';
-  game.clock.addSpace = true;
+  game.clock.amOrPm = 'AM'
+  game.clock.addSpace = true
+  game.clock.isDark = false
+  game.clock.preVal = 0
 
   game:on("DAY_START", clock.startDay)
   game:on('DAY_START', clock.resetClock)
@@ -84,6 +86,11 @@ function clock.renderClock(game, message)
 		love.graphics.push("all")
 		love.graphics.setColor(255,0,0,255)
 
+		if not math.floor(game.clock.currentMin) == game.clock.preVal then
+			game.clock.changeColor()
+			game.clock.preVal = math.floor(game.clock.currentMin)
+		end
+
 
 
   	-- 	if game.clock.currentHour == END_HOUR - 1 and math.floor(game.clock.currentMin) % 2 == 1 then
@@ -108,8 +115,8 @@ function clock.renderCalender(game, message)
 	if game.clock.dayStarted then
 		xpos = 538
 		ypos = 150
-		love.graphics.setFont(calFont)
 		love.graphics.push("all")
+		love.graphics.setFont(calFont)
 		love.graphics.setColor(0,0,0,255)
 		if game.clock.day == 1 then
 			calDay = "Mon"
@@ -137,4 +144,13 @@ function clock.endDay(game, message)
 	game.clock.dayStarted = false
 end
 
+function clock.changeColor()
+	if game.clock.isDark then
+		love.graphics.setColor(255,0,0,255)
+		game.clock.isDark = false
+	else
+		love.graphics.setColor(26,26,26,255)
+		game.clock.isDark = true
+	end
+end
 return clock
