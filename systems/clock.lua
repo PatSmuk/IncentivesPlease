@@ -79,7 +79,7 @@ function clock.renderClock(game, message)
 	if game.clock.dayStarted then
 		love.graphics.push("all")
   		if game.clock.isClockDark then
-  			love.graphics.setColor(0,0,0,255)
+  			love.graphics.setColor(26,26,26,255)
   		else
   			love.graphics.setColor(255,0,0,255)
   		end
