@@ -4,7 +4,7 @@ local messages = require("../messages")
 local DAY_END = messages.DAY_END
 local START_HOUR = 9
 local START_MIN = 0
-local END_HOUR = 5
+local END_HOUR = 10
 local END_MIN = 59
 
 local font = love.graphics.newFont("assets/font/DS-DIGI.ttf", 40)
@@ -59,8 +59,8 @@ function clock.updateClock(game, message)
 end
 
 function clock.renderClock(game, message)
-		-- 
-  -- 		
+		--
+  --
 	if game.clock.dayStarted then
 		love.graphics.push("all")
   		love.graphics.setColor(255,0,0,255)
