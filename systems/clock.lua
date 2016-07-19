@@ -25,6 +25,7 @@ function clock.register(game)
   game:on('UPDATE', clock.updateClock)
   -- game:on('DAY_START', clock.renderClock)
   game:on('RENDER_UI', clock.renderClock)
+  game:on('DAY_END', clock.endDay)
 end
 
 function clock.resetClock(game, message)
@@ -39,7 +40,7 @@ function clock.updateClock(game, message)
 		return
 	end
 
-	game.clock.currentMin = game.clock.currentMin + (message.dt * 15)
+	game.clock.currentMin = game.clock.currentMin + (message.dt * 3)
 
 	if game.clock.currentMin >= END_MIN then
 		game.clock.currentHour = game.clock.currentHour + 1
@@ -90,5 +91,10 @@ end
 
 function clock.startDay(game, message)
 	game.clock.dayStarted = true
+	game.clock.clockRunning = true
+end
+
+function clock.endDay(game, message)
+	game.clock.dayStarted = false
 end
 return clock
