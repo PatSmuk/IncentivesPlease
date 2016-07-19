@@ -11,6 +11,8 @@ local buttons = {
       widthScale = 0.1,
       heightScale = 0.1,
       onClick = function (game)
+        sfxGameStart = love.audio.newSource("assets/sfx/game_start.wav","static")
+        sfxGameStart:play()
         game.screen.currentScreen = "game"
         game.screen.currentDay = 1
         game:dispatch(messages.DAY_START(game.screen.currentDay))
@@ -88,6 +90,8 @@ local backgrounds = {
 }
 
 function screen.endDay(game, message)
+  sfxNextLevel = love.audio.newSource("assets/sfx/next_level.wav","static")
+  sfxNextLevel:play()
   game.screen.currentScreen = "levelComplete"
 end
 
