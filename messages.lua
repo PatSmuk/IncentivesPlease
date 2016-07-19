@@ -24,7 +24,7 @@ function messages.DAY_START(day)
   }
 end
 
-function messages.DAY_END()
+function messages.DAY_END(day)
   return {
     type = "DAY_END",
     loggable = true,

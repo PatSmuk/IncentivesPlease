@@ -1,3 +1,4 @@
+local createAnimator = require("animation")
 local dispatcher = require("dispatcher")
 local messages = require("messages")
 
@@ -15,7 +16,10 @@ local RENDER_UI = messages.RENDER_UI
 local UPDATE = messages.UPDATE
 
 local game = dispatcher.createDispatcher()
+
 local debugActive = false
+local debugAnimation = nil
+local debugAlpha = 0
 
 function love.load()
   claimChecking.register(game)
@@ -47,11 +51,21 @@ function love.keypressed(key)
     return
   end
 
-  debugActive = not debugActive
+  if debugActive then
+    debugAnimation = createAnimator(debugAlpha, 0, 180, 20, function (alpha) debugAlpha = alpha end)
+    debugActive = false
+  else
+    debugAnimation = createAnimator(debugAlpha, 255, 180, 20, function (alpha) debugAlpha = alpha end)
+    debugActive = true
+  end
 end
 
 function love.update(dt)
   game:dispatch(UPDATE(dt))
+
+  if debugAnimation and debugAnimation(dt) then
+    debugAnimation = nil
+  end
 end
 
 function love.draw()
@@ -59,14 +73,14 @@ function love.draw()
   game:dispatch(RENDER_FG())
   game:dispatch(RENDER_UI())
 
-  if debugActive then
+  if debugAlpha > 0 then
     love.graphics.push("all")
 
-    love.graphics.setColor(0, 0, 0, 200)
+    love.graphics.setColor(0, 0, 0, 200 * debugAlpha/255)
     love.graphics.rectangle("fill", 0, 0, 260, 1080)
     love.graphics.rectangle("fill", 1540, 0, 380, 1080)
 
-    love.graphics.setColor(255, 255, 255)
+    love.graphics.setColor(255, 255, 255, debugAlpha)
     drawTableDebug(game, 10, 10)
     drawMessageLog(game.lastMessages, 1600, 10)
 

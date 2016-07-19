@@ -157,9 +157,6 @@ function desk.drawTable(game, message)
     return
   end
 
-  love.graphics.setColor(102, 51, 0)
-  love.graphics.rectangle("fill", ZOOM_ZONE.x, ZOOM_ZONE.y, ZOOM_ZONE.width, ZOOM_ZONE.height)
-
   local claim = game.desk.activeClaim
   if claim then
     if claim.valid then
