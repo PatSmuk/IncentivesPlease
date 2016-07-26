@@ -176,6 +176,10 @@ local PICKUP_CLAIM_SOUND = love.audio.newSource("assets/sfx/pickup_claim.wav","s
 
 local DAYS_PER_MONTH = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 
+-- How far outside the approved/denied box the claim can be before it's
+--   registered as a hit
+local OUT_BOX_FUDGE_FACTOR = 80
+
 function desk.register(game)
   print("Registering table system")
 
@@ -193,7 +197,8 @@ function desk.register(game)
   game:on("MOUSE_MOVE", desk.moveClaim)
   game:on("MOUSE_RELEASE", desk.dropClaim)
   game:on("RENDER_FG", desk.drawTable)
-  game:on("UPDATE", desk.updateAnimations)
+  game:on("UPDATE", desk.animateInboxGlow)
+  game:on("UPDATE", desk.animateClaim)
 end
 
 function desk.startDay(game, message)
@@ -258,7 +263,7 @@ function desk.pickUpClaim(game, message)
         slideAnimator = createAnimator(4, 4, 500, 30, 0.1, function (x) claim.slideXOffset = x end),
         inSlideZone = false,
 
-        valid = math.random() * 5 >= 1,
+        valid = math.random() * 2 >= 1,
         request = {
           date = date,
           associateName = associateName,
@@ -280,9 +285,11 @@ function desk.pickUpClaim(game, message)
 
       PICKUP_CLAIM_SOUND:play()
 
+      -- If the claim is invalid, change a field so they don't match
       if not claim.valid then
         local badField = INVOICE_FIELDS[math.ceil(math.random() * game.desk.currentDay)]
         local newValue
+        local loopCount = 0
         repeat
           if badField == "date" then
             local year = math.floor(math.random() * 3) + 2013
@@ -291,8 +298,6 @@ function desk.pickUpClaim(game, message)
             newValue = string.format("%04d-%02d-%02d", year, month, day)
           elseif badField == "associateName" then
             newValue = RANDOM_NAMES[math.ceil(math.random() * #RANDOM_NAMES)]
-          elseif badField == "dealer" then
-            newValue = math.ceil(math.random() * #INVOICE_TEMPLATES)
           elseif badField == "modelSerial" then
             newValue = math.ceil(math.random() * 1000000).."-"..math.ceil(math.random() * 1000000)
           elseif badField == "quantity" then
@@ -302,6 +307,8 @@ function desk.pickUpClaim(game, message)
             newValue = string.format("$%d.%02d", math.floor(price / 100), price % 100)
           end
           claim.invoice[badField] = newValue
+          loopCount = loopCount + 1
+          assert(loopCount < 100, 'Infinite loop detected')
         until claim.request[badField] ~= claim.invoice[badField]
       end
     end
@@ -345,32 +352,33 @@ function desk.dropClaim(game, message)
 
   claim.dragPoint = nil
 
-  if desk.checkBoxCollision(claim, BOX_APPROVED, 50) then
+  if desk.checkBoxCollision(claim, BOX_APPROVED, OUT_BOX_FUDGE_FACTOR) then
     game.desk.activeClaim = nil
     game:dispatch(CLAIM_APPROVED(claim))
-  elseif desk.checkBoxCollision(claim, BOX_DENIED, 50) then
+  elseif desk.checkBoxCollision(claim, BOX_DENIED, OUT_BOX_FUDGE_FACTOR) then
     game.desk.activeClaim = nil
     game:dispatch(CLAIM_DENIED(claim))
   end
 end
 
 function desk.drawTable(game, message)
-  love.graphics.push("all")
-  love.graphics.setFont(INVOICE_FONT)
-
   if not game.desk.currentDay then
-    love.graphics.pop()
     return
   end
 
+  love.graphics.push("all")
+  love.graphics.setFont(INVOICE_FONT)
+
   local claim = game.desk.activeClaim
   if claim then
-    if desk.checkBoxCollision(claim, BOX_APPROVED, 50) then
+    -- Draw the glow on the approved/denied box if the claim is over it
+    if desk.checkBoxCollision(claim, BOX_APPROVED, OUT_BOX_FUDGE_FACTOR) then
       love.graphics.draw(BOX_APPROVED.glow, BOX_APPROVED.x - 8, BOX_APPROVED.y - 8)
-    elseif desk.checkBoxCollision(claim, BOX_DENIED, 50) then
+    elseif desk.checkBoxCollision(claim, BOX_DENIED, OUT_BOX_FUDGE_FACTOR) then
       love.graphics.draw(BOX_DENIED.glow, BOX_DENIED.x - 8, BOX_DENIED.y - 8)
     end
 
+    -- Draw the small version of the claim and invoice
     love.graphics.draw(INVOICE_TEMPLATES[claim.invoice.dealer].smallImage, claim.x + claim.slideXOffset, claim.y)
     love.graphics.draw(CLAIM_REQUEST_IMAGES[game.desk.currentDay].small, claim.x, claim.y)
 
@@ -378,6 +386,7 @@ function desk.drawTable(game, message)
     local y = (claim.y - ZOOM_ZONE.y) * 3
     love.graphics.setScissor(ZOOM_VIEW.x, ZOOM_VIEW.y, ZOOM_VIEW.width, ZOOM_VIEW.height)
 
+    -- Draw the large invoice
     love.graphics.push()
     love.graphics.translate(x + claim.slideXOffset * 9, y)
     love.graphics.draw(INVOICE_TEMPLATES[claim.invoice.dealer].largeImage, 0, 0)
@@ -388,6 +397,7 @@ function desk.drawTable(game, message)
     love.graphics.setColor(255, 255, 255)
     love.graphics.pop()
 
+    -- Draw the large claim request
     love.graphics.push()
     love.graphics.translate(x, y)
     love.graphics.draw(CLAIM_REQUEST_IMAGES[game.desk.currentDay].large, 0, 0)
@@ -402,6 +412,7 @@ function desk.drawTable(game, message)
 
     love.graphics.setScissor()
   else
+    -- Draw the inbox's glow when there's no claim on the desk
     love.graphics.setColor(255, 255, 255, game.desk.inboxGlowAlpha)
     love.graphics.draw(BOX_INBOX.glow, BOX_INBOX.x - 8, BOX_INBOX.y - 6)
   end
@@ -409,7 +420,7 @@ function desk.drawTable(game, message)
   love.graphics.pop()
 end
 
-function desk.updateAnimations(game, message)
+function desk.animateInboxGlow(game, message)
   if not game.desk.currentDay then
     return
   end
@@ -423,11 +434,14 @@ function desk.updateAnimations(game, message)
       game.desk.inboxGlowGrowing = true
     end
   end
+end
 
-  local claim = game.desk.activeClaim
-  if not claim then
+function desk.animateClaim(game, message)
+  if not game.desk.currentDay or not game.desk.activeClaim then
     return
   end
+
+  local claim = game.desk.activeClaim
   claim.xAnimator(message.dt, claim.targetX)
   claim.yAnimator(message.dt, claim.targetY)
 
