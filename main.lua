@@ -48,24 +48,26 @@ end
 
 function love.keypressed(key)
 
-  if key == "q" then
+  if key == "q" or key == "escape" then
     love.event.quit(0)
   end
 
-  if key ~= "d" then
-    return
-  end
-
-  if debugActive then
-    debugAnimation = createAnimator(debugAlpha, 0, 180, 20, 0.1, function (alpha) debugAlpha = alpha end)
-    debugActive = false
-  else
-    debugAnimation = createAnimator(debugAlpha, 255, 180, 20, 0.1, function (alpha) debugAlpha = alpha end)
-    debugActive = true
+  if key == "d" then
+    if debugActive then
+      debugAnimation = createAnimator(debugAlpha, 0, 180, 20, 0.1, function (alpha) debugAlpha = alpha end)
+      debugActive = false
+    else
+      debugAnimation = createAnimator(debugAlpha, 255, 180, 20, 0.1, function (alpha) debugAlpha = alpha end)
+      debugActive = true
+    end
   end
 end
 
 function love.update(dt)
+  if dt > 1/10 then
+    dt = 1/10
+  end
+
   game:dispatch(UPDATE(dt))
 
   if debugAnimation and debugAnimation(dt) then
