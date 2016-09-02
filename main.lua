@@ -84,7 +84,7 @@ function love.draw()
     love.graphics.push("all")
 
     love.graphics.setColor(0, 0, 0, 200 * debugAlpha/255)
-    love.graphics.rectangle("fill", 0, 0, 240, 1080)
+    love.graphics.rectangle("fill", 0, 0, 320, 1080)
     love.graphics.rectangle("fill", 1580, 0, 340, 1080)
 
     love.graphics.setColor(255, 255, 255, debugAlpha)
