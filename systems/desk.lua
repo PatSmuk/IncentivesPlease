@@ -381,7 +381,7 @@ function desk.drawTable(game, message)
 
     local x = (claim.x - ZOOM_ZONE.x) * 2 + ZOOM_VIEW.x
     local y = (claim.y - ZOOM_ZONE.y) * 3
-    love.graphics.setScissor(ZOOM_VIEW.x, ZOOM_VIEW.y, ZOOM_VIEW.width, ZOOM_VIEW.height)
+    love.graphics.setScissor(ZOOM_VIEW.x * (game.windowWidth/1920), ZOOM_VIEW.y * (game.windowHeight/1080), ZOOM_VIEW.width * (game.windowWidth/1920), ZOOM_VIEW.height * (game.windowHeight/1080))
 
     -- Draw the large invoice
     love.graphics.push()

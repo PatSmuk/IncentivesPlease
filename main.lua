@@ -21,7 +21,13 @@ local debugActive = false
 local debugAnimation = nil
 local debugAlpha = 0
 
+game.windowWidth, game.windowHeight = 1920, 1080
+
 function love.load()
+  local _, _, flags = love.window.getMode()
+  game.windowWidth, game.windowHeight = love.window.getDesktopDimensions(flags.display)
+  love.window.setMode(game.windowWidth, game.windowHeight, { fullscreen = true })
+
   claimChecking.register(game)
   clock.register(game)
   screen.register(game)
@@ -32,14 +38,22 @@ function love.mousepressed(x, y, button)
   if button ~= 1 then
     return
   end
+  x = x * 1920/game.windowWidth
+  y = y * 1080/game.windowHeight
   game:dispatch(MOUSE_PRESS(x, y))
 end
 
 function love.mousemoved(x, y, dx, dy)
+  x = x * 1920/game.windowWidth
+  y = y * 1080/game.windowHeight
+  dx = dx * 1920/game.windowWidth
+  dy = dy * 1080/game.windowHeight
   game:dispatch(MOUSE_MOVE(x, y, dx, dy))
 end
 
 function love.mousereleased(x, y, button)
+  x = x * 1920/game.windowWidth
+  y = y * 1080/game.windowHeight
   if button ~= 1 then
     return
   end
@@ -76,6 +90,9 @@ function love.update(dt)
 end
 
 function love.draw()
+  love.graphics.push()
+  love.graphics.scale(game.windowWidth/1920, game.windowHeight/1080)
+
   game:dispatch(RENDER_BG())
   game:dispatch(RENDER_FG())
   game:dispatch(RENDER_UI())
@@ -93,6 +110,8 @@ function love.draw()
 
     love.graphics.pop()
   end
+
+  love.graphics.pop()
 end
 
 function drawTableDebug(t, x, y)
