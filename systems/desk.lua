@@ -115,12 +115,9 @@ local RANDOM_NAMES = {
   "Mikaela Dickens",
   "Bok Amen",
   "Janelle Edlin",
-  "Raymon Brzezinski",
   "Bruce Willis",
-  "Arnold Schwarzenegger",
-  "Jean Claude Van Damme",
-  "Sylvester Stallone",
-  "Rhonda Rousey"
+  "Rhonda Rousey",
+  "Alan Davis"
 }
 local INVOICE_TEMPLATES = {
   {
